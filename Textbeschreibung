@@ -1,0 +1,35 @@
+Es gibt eine Website, welche aus mindestens einer, andernfalls aber beliebig vielen Unterseiten besteht. Unterseiten
+bestehen aus jeweils einem Header, dann folgt jeweils ein Body und anschließend bestehen sie außerdem aus jeweils einem
+Footer.
+
+Es gibt einen Header, welcher aus einem Bild und einer Navbar besteht.
+
+Es gibt einen Body, welcher aus beliebig vielen frei wählbaren Bausteinen besteht. Die Bausteine sind: Bilder, Listen,
+Formulare, Textbausteine, Icons, Links und Tabellen.
+
+Es gibt einen Footer, welcher beliebig viele Links enthält.
+
+Es gibt eine Navbar, welche aus einer Liste besteht, welche einen Link enthält und optional zusätzlich eine darin
+eingebettete Liste.
+
+Es gibt Bilder mit einem Alternativtext und einer konfigurierbaren Größe (Höhe und Breite). Die Quelle des Bildes wird
+durch einen relativen Pfad angegeben.
+
+Es gibt Listen (sortiert oder unsortiert), welche über einen Titel sowie mindestens ein Element verfügen. Elemente
+bestehen aus Text.
+
+Es gibt Formulare, welche aus Eingabefeldern und einem Submit Button bestehen. Eingabefelder bestehen aus jeweils einem
+Label, einem/r Input/Textarea und einem Placeholder. Eingabefelder können einzeilig (Input) oder mehrzeilig (Textarea)
+sein.
+
+Es gibt Textbausteine, welche aus einer oder mehreren Überschriften sowie dem eigentlichen textuellen Inhalt bestehen.
+Es gibt Überschriften in verschiedenen Größen (h1-h4).
+
+Es gibt Icons, welche aus Svgs bestehen. Svgs wiederum bestehen jeweils aus einem oder mehreren Paths.
+
+Es gibt Links, welche aus einer Beschriftung (Namen) und einer Zieladresse bestehen.
+
+Es gibt Tabellen, welche aus einem Tabellenkopf (thead) und mehreren Tabellenreihen (tr) bestehen. Der Tabellenkopf
+besteht ebenfalls aus einer Tabellenreihe, welche die Überschriften der Tabellenspalten (th) beinhalten. Die übrigen
+Tabellenreihen bestehen aus einfachen textuellen Tabellenzellen (td).
+
