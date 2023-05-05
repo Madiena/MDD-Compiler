@@ -7,15 +7,17 @@ class WebsiteParser extends RegexParsers{
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
   def identifierWord: Parser[String] = """([ /\-!:,&)]*)""".r | word ^^ {_.toString}
 
-  def statmentmiddleel = """\(""".r ~ id ~ """\),""".r
+ // def statmentmiddleel = """\(""".r ~ id ~ """\),""".r
+//TODO: find out how to escape ( and ) in Scala regex
+  def statementendel = """\(""".r ~ endel ~ """\)""".r
+ // def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
 
-  def statementendel = """\(""".r ~ id ~ """\)""".r
-  def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
+ // def middleel
 
-  def endel = destination | tablehead | tabledata | tablerow |
+  def endel = destination | tablehead | tabledata | identifier
 
   // Destination = (destination)
-  def destination: Parser[String] = """\(""".r ~ word ~ """\((.html)\),""".r ~ """\)""".r ^^ {_.toString()}
+  def destination: Parser[String] = """\(""".r ~ word ~ """.html,""".r ~ """\)""".r ^^ {_.toString()}
   // Tablehead = (tablehead),
   def tablehead: Parser[String] = """\(""".r ~ word ~ """\),""".r ^^ {_.toString()}
   // Tableheadend = (tablehead)
@@ -37,7 +39,7 @@ class WebsiteParser extends RegexParsers{
   // Identifier = (identifier),
   def identifier = """\(""".r ~ identifierWord ~ """\),""".r ^^ {_.toString()}
   // Link = (link: <identifier ~ destination>)
-  def link:
+ /* def link:
   // textArea = (textarea),
   def textArea:
   // input = (<label ~ input ~ placeholder>) // Vielleicht müssen die Styling-Tags auch hier mit rein später?! Placeholder ist ja so gesehen ein Teil des Inputs, aber programmiertechnisch ein Styling bzw eine Zusatzspezifikation des Input-Tags
@@ -72,6 +74,6 @@ class WebsiteParser extends RegexParsers{
   def page:
   // website = (website: <page*>)
   def website:
-
+*/
 
 }
