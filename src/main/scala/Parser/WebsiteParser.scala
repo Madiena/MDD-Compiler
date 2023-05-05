@@ -5,11 +5,12 @@ import scala.util.parsing.combinator.RegexParsers
 class WebsiteParser extends RegexParsers{
 
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
-  def identifierWord: Parser[String] = """([ /\-!:,&)]*)""".r | word ^^ {_.toString}
+  def identifierWord: Parser[String] = """([ /\-!:,&)[a-z]+)|([A-Z]+)|(0|[1-9]\d*]*)""".r ^^ {_.toString}
 
  // def statmentmiddleel = """\(""".r ~ id ~ """\),""".r
 //TODO: find out how to escape ( and ) in Scala regex
-  def statementendel = """\(""".r ~ endel ~ """\)""".r
+  // https://stackoverflow.com/questions/24564872/how-do-i-match-the-contents-of-parenthesis-in-a-scala-regular-expression
+  def statementendel: Parser[String] = """\(""".r  ^^ {_.toString()}
  // def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
 
  // def middleel
@@ -17,7 +18,7 @@ class WebsiteParser extends RegexParsers{
   def endel = destination | tablehead | tabledata | identifier
 
   // Destination = (destination)
-  def destination: Parser[String] = """\(""".r ~ word ~ """.html,""".r ~ """\)""".r ^^ {_.toString()}
+  def destination: Parser[String] =  word ~ """\.html,""".r ^^ {_.toString()}
   // Tablehead = (tablehead),
   def tablehead: Parser[String] = """\(""".r ~ word ~ """\),""".r ^^ {_.toString()}
   // Tableheadend = (tablehead)
