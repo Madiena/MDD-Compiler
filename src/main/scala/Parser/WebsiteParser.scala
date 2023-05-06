@@ -5,40 +5,41 @@ import scala.util.parsing.combinator.RegexParsers
 class WebsiteParser extends RegexParsers{
 
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
-  def identifierWord: Parser[String] = """([ /\-!:,&)[a-z]+)|([A-Z]+)|(0|[1-9]\d*]*)""".r ^^ {_.toString}
 
  // def statmentmiddleel = """\(""".r ~ id ~ """\),""".r
 //TODO: find out how to escape ( and ) in Scala regex
   // https://stackoverflow.com/questions/24564872/how-do-i-match-the-contents-of-parenthesis-in-a-scala-regular-expression
-  def statementendel: Parser[String] = """\(""".r  ^^ {_.toString()}
- // def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
+  def statementendel: Parser[String] = """\(""".r ~ endel ~ """\)""".r ^^ {_.toString()}
 
- // def middleel
+  def statementmiddleel = """\(""".r ~ middleel ~ """\),""".r ^^ {_.toString()}
 
-  def endel = destination | tablehead | tabledata | identifier
+  // Identifier = (identifier),
+  def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d])+)""".r ^^ {_.toString}
 
+  // def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
+
+  def middleel = identifier | tablehead | tabledata
+
+  def endel = destination | tablehead | tabledata
   // Destination = (destination)
-  def destination: Parser[String] =  word ~ """\.html,""".r ^^ {_.toString()}
+  def destination: Parser[String] =  word ~ """\.html""".r ^^ {_.toString()}
   // Tablehead = (tablehead),
-  def tablehead: Parser[String] = """\(""".r ~ word ~ """\),""".r ^^ {_.toString()}
-  // Tableheadend = (tablehead)
-  def tableheadend: Parser[String] = """\(""".r ~ word ~ """\)""".r ^^ {_.toString()}
+  def tablehead: Parser[String] = word ^^ {_.toString()}
   // Tabledata = (tabledata),
-  def tabledata: Parser[String] = """\(""".r ~ identifierWord ~ """\),""".r ^^ {_.toString()}
+  def tabledata: Parser[String] = identifier ^^ {_.toString()}
   // Tabledataend = (tabledata)
-  def tabledataend = """\(""".r ~ identifierWord ~ """\)""".r ^^ {_.toString()}
+  def tabledataend = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // Tablerowhead = (tablerow: <tablehead+>),
-  def tablerowhead  = """\(Tablerow:""".r ~ (rep1(tablehead) ~ tableheadend) ~ """\),""".r  //TODO: function building AST node
+  def tablerowhead  = """\(Tablerow:""".r ~ (rep1(tablehead)) ~ """\),""".r  //TODO: function building AST node
   // Tablerowheadend = (tablerow: <tablehead+>)
-  def tablerowheadend  = """\(Tablerow:""".r ~ (rep1(tablehead) ~ tableheadend) ~ """\)""".r  //TODO: function building AST node
+  def tablerowheadend  = """\(Tablerow:""".r ~ (rep1(tablehead)) ~ """\)""".r  //TODO: function building AST node
   // Tablerowdata = (tablerow: <tabledata+>),
   def tablerowdata  = """\(Tablerow:""".r ~ (rep1(tabledata) ~ tabledataend) ~ """\),""".r  //TODO: function building AST node
   // Tablerowdataend = (tablerow: <tabledata+>)
   def tablerowdataend  = """\(Tablerow:""".r ~ (rep1(tabledata) ~ tabledataend) ~ """\)""".r  //TODO: function building AST node
   // Table = (table: <tablerow+>)
   def table = """\(Table:""".r  ~ rep1(tablerowhead) ~ tablerowheadend ~ rep1(tablerowdata) ~ tablerowdataend ~ """\),""".r //TODO: function building AST node
-  // Identifier = (identifier),
-  def identifier = """\(""".r ~ identifierWord ~ """\),""".r ^^ {_.toString()}
+
   // Link = (link: <identifier ~ destination>)
  /* def link:
   // textArea = (textarea),
