@@ -6,21 +6,20 @@ import scala.util.parsing.combinator.RegexParsers
 class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
+  def statementist = statementbeg
+  def statementbeg = (statementbegel ~ """:""".r ~ (rep(statementmiddleel) ~ statementendel) | statementbeg ) ^^ {_.toString}
 
- // def statmentmiddleel = """\(""".r ~ id ~ """\),""".r
-//TODO: find out how to escape ( and ) in Scala regex
-  // https://stackoverflow.com/questions/24564872/how-do-i-match-the-contents-of-parenthesis-in-a-scala-regular-expression
+  def statementbegel =  tablerow | table
   def statementendel: Parser[String] = """\(""".r ~ endel ~ """\)""".r ^^ {_.toString()}
 
   def statementmiddleel = """\(""".r ~ middleel ~ """\),""".r ^^ {_.toString()}
 
+  def middleel = identifier | tabledata | tablehead
   // Identifier = (identifier),
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
   // def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
-
-  def middleel = identifier | tabledata | tablehead
 
   def endel = destination  | tabledata | tablehead
   // Destination = (destination)
@@ -30,15 +29,11 @@ class WebsiteParser extends RegexParsers{
   // Tabledata = (tabledata),
   def tabledata: Parser[String] = identifier ^^ {_.toString()}
   // Tablerowhead = (tablerow: <tablehead+>),
-  def tablerowhead  = """\(Tablerow:""".r ~ (rep1(tablehead)) ~ """\),""".r  //TODO: function building AST node
-  // Tablerowheadend = (tablerow: <tablehead+>)
-  def tablerowheadend  = """\(Tablerow:""".r ~ (rep1(tablehead)) ~ """\)""".r  //TODO: function building AST node
-  // Tablerowdata = (tablerow: <tabledata+>),
-  def tablerowdata  = """\(Tablerow:""".r ~ (rep1(tabledata) ~ tabledataend) ~ """\),""".r  //TODO: function building AST node
-  // Tablerowdataend = (tablerow: <tabledata+>)
-  def tablerowdataend  = """\(Tablerow:""".r ~ (rep1(tabledata) ~ tabledataend) ~ """\)""".r  //TODO: function building AST node
-  // Table = (table: <tablerow+>)
-  def table = """\(Table:""".r  ~ rep1(tablerowhead) ~ tablerowheadend ~ rep1(tablerowdata) ~ tablerowdataend ~ """\),""".r //TODO: function building AST node
+
+  def tablerow: Parser[String] =  """Tablerow""".r
+
+  def table: Parser[String] =  """Table""".r
+
 
   // Link = (link: <identifier ~ destination>)
  /* def link:
