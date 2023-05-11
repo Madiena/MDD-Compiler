@@ -6,27 +6,24 @@ import scala.util.parsing.combinator.RegexParsers
 class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
-  //def statementbeg = """\(*""".r  ~ repsep(statementbegel, ":") ~ (repsep(statementmiddleel,) ~ statementendel) ~ """\)*""".r ^^ {_.toString}
 
-  def statementbegel =  tablerow | table | link | textArea | paragraph | formular | headline | text | icon | listElement
-  def statementendel: Parser[String] = """\(""".r ~ endel ~ """\)""".r ^^ {_.toString()}
+  def statementWrapWrap = """\(""".r ~  wrapEl ~ repsep(statementWrap, ",") ~ """\)""".r ^^ {_.toString()}
 
-  def statementmiddleel = """\(""".r ~ middleel ~ """\),""".r ^^ {_.toString()}
+  def wrapEl = """Tablerow:""".r | """Table:""".r ^^ {_.toString}
 
-  def middleel = identifier | tabledata | tablehead
+  def statementWrap = """\(""".r ~ wrapEl ~ statement ~ """\)""".r ^^ {_.toString()}
 
-  def statement = repsep(tabledata, ",") ^^ {_.toString()}
+  def statement =  repsep(statementel, ",") ^^ {_.toString()}
+
+  def statementel = tabledata | tablehead
   // Identifier = (identifier),
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
-  // def statementlist = id ~ """:""".r ~ rep1(statementendel) ~ statementendel
-
-  def endel = destination  | tabledata | tablehead
   // Destination = (destination)
   def destination: Parser[String] =  word ~ """\.html""".r ^^ {_.toString()}
   // Tablehead = (tablehead),
-  def tablehead: Parser[String] = word ^^ {_.toString()}
+  def tablehead: Parser[String] = """\(""".r ~ word ~ """\)""".r ^^ {_.toString()}
   // Tabledata = (tabledata),
   def tabledata: Parser[String] = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // Tablerowhead = (tablerow: <tablehead+>),
