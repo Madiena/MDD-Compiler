@@ -7,21 +7,22 @@ class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
 
+  def statementWrapWrapWrap = """\(""".r ~ wrapEl ~ (repsep(statementWrapWrap, ",") | repsep(statementWrap, ",")) ~ """\)""".r ^^ {_.toString()}
   def statementWrapWrap = """\(""".r ~  wrapEl ~ repsep(statementWrap, ",") ~ """\)""".r ^^ {_.toString()}
 
-  def wrapEl = """Tablerow:""".r | """Table:""".r ^^ {_.toString}
+  def wrapEl = (tablerow ~ """:""".r) | (table ~ """:""".r) | (body ~ """:""".r) | (link ~ """:""".r) | (footer ~ """:""".r)^^ {_.toString}
 
   def statementWrap = """\(""".r ~ wrapEl ~ statement ~ """\)""".r ^^ {_.toString()}
 
   def statement =  repsep(statementel, ",") ^^ {_.toString()}
 
-  def statementel = tabledata | tablehead
+  def statementel = destination | ("""\(""".r ~ identifier ~ """\)""".r) |  tabledata | tablehead
   // Identifier = (identifier),
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
   // Destination = (destination)
-  def destination: Parser[String] =  word ~ """\.html""".r ^^ {_.toString()}
+  def destination: Parser[String] = """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^ {_.toString()}
   // Tablehead = (tablehead),
   def tablehead: Parser[String] = """\(""".r ~ word ~ """\)""".r ^^ {_.toString()}
   // Tabledata = (tabledata),
@@ -59,13 +60,13 @@ class WebsiteParser extends RegexParsers{
   // image = (image)
   def image: Parser[String] = """Image""".r
   // footer = (footer: <link ~ link>)
-  def footer: Parser[String] = """\(""".r ~ link ~ """\*""".r ~ """\)""".r ^^ {_.toString()}
+  def footer: Parser[String] = """Footer""".r ^^ {_.toString()}
   // navbar = (navbar: <link*>) // ToDo: Überlegen, wie wir umsetzen dass Links auch "Unterlinks" haben können in der Navbar.. zwei Linkarten oder als optionales Attribut hinzufügen oder ganz anders?!
   def navbar: Parser[String] = """\(""".r ~ link ~ """\*""".r ~ """\)""".r ^^ {_.toString()}
   // header = (header: <image ~ navbar>) // CAVE: Tatsächlich ist der header leer, logo befindet sich im Body.. aber sollte ja trotzdem gleich aussehen und irrelevant sein am Ende
   def header: Parser[String] = """\(""".r ~ image ~ navbar ~ """\)""".r ^^ {_.toString()}
   // body = (body: <image* ~ text* ~ list* ~ icon* ~ table* ~ formular* ~ link*>)
-  def body: Parser[String] = """\(""".r ~ image ~ """\*""".r ~ text ~ """\*""".r ~ icon ~ """\*""".r ~ table ~ """\*""".r ~ formular ~ """\*""".r ~ link ~ """\*""".r ~ """\)""".r ^^ {_.toString()}
+  def body: Parser[String] = """Body""".r ^^ {_.toString()}
   // page = (page: <header ~ body ~ footer)
   def page: Parser[String] = """\(""".r ~ header ~ body ~ footer ~ """\)""".r ^^ {_.toString()}
   // website = (website: <page*>)
