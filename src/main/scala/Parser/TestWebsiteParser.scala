@@ -2,8 +2,7 @@ package Parser
 
 object TestWebsiteParser extends WebsiteParser {
   def main(args: Array[String]): Unit = {
-    parse(statementWrapWrap, "(Link: (Identifier), (Destination.html))," +
-      "                       (Link: (Identifier), (Destination.html))") match {
+    parse(fullTable, "(Table: (Tablerow: (Tablehead), (Tablehead)), (Tablerow: (Tabledata), (Tabledat)))") match {
       case Success(matched, _) => println(matched)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
       case Error(msg, _) => ("Jetzt ist aber was ganz kaputt gegangen. Das hast du gemacht: " + msg)
@@ -12,6 +11,9 @@ object TestWebsiteParser extends WebsiteParser {
 }
 
 /*
+
+(Link: (Identifier), (Destination.html))," +
+      "                   (Link: (Identifier), (Destination.html))
 
 (Body: (Table: (Tablerow: (Tablehead), " +
       "                                          (Tablehead))," +

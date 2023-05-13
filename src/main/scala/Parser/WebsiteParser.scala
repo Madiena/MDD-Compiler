@@ -7,16 +7,11 @@ class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
 
-  def statementWrapWrapWrap = """\(""".r ~ wrapEl ~ (repsep(statementWrapWrap, ",") | repsep(statementWrap, ",")) ~ """\)""".r ^^ {_.toString()}
-  def statementWrapWrap = """\(""".r ~  wrapEl ~ repsep(statementWrap, ",") ~ """\)""".r ^^ {_.toString()}
 
-  def wrapEl = (tablerow ~ """:""".r) | (table ~ """:""".r) | (body ~ """:""".r) | (link ~ """:""".r) | (footer ~ """:""".r)^^ {_.toString}
-
-  def statementWrap = """\(""".r ~ wrapEl ~ statement ~ """\)""".r ^^ {_.toString()}
-
-  def statement =  repsep(statementel, ",") ^^ {_.toString()}
-
-  def statementel = destination | ("""\(""".r ~ identifier ~ """\)""".r) |  tabledata | tablehead
+  def fullTable = """\(""".r ~  tableWrapEl ~ repsep(tableRow, ",") ~ """\)""".r ^^ {_.toString()}
+  def tableRow = """\(""".r ~ tableWrapEl ~ repsep(tableEl, ",") ~ """\)""".r ^^ {_.toString()}
+  def tableWrapEl = (tablerow ~ """:""".r) | (table ~ """:""".r)
+  def tableEl = tabledata | tablehead
   // Identifier = (identifier),
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
