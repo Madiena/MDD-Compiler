@@ -2,7 +2,7 @@ package Parser
 
 object TestWebsiteParser extends WebsiteParser {
   def main(args: Array[String]): Unit = {
-    parse(fullTable, "(Table: (Tablerow: (tabledata), (tablehad)), (Tablerow: (tabledat), (dk5hsjf)))") match {
+    parse(fullLink, "(Link: (Identifier), (Destination.html))") match {
       case Success(matched, _) => println(matched)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
       case Error(msg, _) => ("Jetzt ist aber was ganz kaputt gegangen. Das hast du gemacht: " + msg)
@@ -11,6 +11,8 @@ object TestWebsiteParser extends WebsiteParser {
 }
 
 /*
+
+
 
 (Link: (Identifier), (Destination.html))," +
       "                   (Link: (Identifier), (Destination.html))

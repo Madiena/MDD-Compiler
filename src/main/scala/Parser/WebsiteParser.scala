@@ -5,14 +5,14 @@ import scala.util.parsing.combinator.RegexParsers
 
 class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
-  def word: Parser[String] = """([a-z]+)|([A-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
+  def word: Parser[String] = """([_a-zA-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
 
 
   def fullTable = """\(""".r ~  tableWrapEl ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {_.toString()}
   def tableRowHead = """\(""".r ~ tableWrapEl ~ repsep(tablehead, ",") ~ """\)""".r ^^ {_.toString()}
   def tableRowData = """\(""".r ~ tableWrapEl ~ repsep(tabledata, ",") ~ """\)""".r ^^ {_.toString()}
   def tableWrapEl = (tablerow ~ """:""".r) | (table ~ """:""".r)
-  def fullLink = """\(""".r ~ link ~ """:""".r
+  def fullLink = """\(""".r ~ link ~ """:""".r ~ """\(""".r ~ identifier ~ """\),""".r ~ destination ~  """\)""".r ^^ {_.toString()}
   // Identifier = (identifier),
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
