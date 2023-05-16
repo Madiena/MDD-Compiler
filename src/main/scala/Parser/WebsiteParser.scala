@@ -4,7 +4,7 @@ import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
 class WebsiteParser extends RegexParsers{
-  def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
+  def identifier: Parser[String] = """(([/\-!.:,'&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([_a-zA-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
   def fullTable = """\(""".r ~  tableWrapEl ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {_.toString()}
   def tableRowHead = """\(""".r ~ tableWrapEl ~ repsep(tablehead, ",") ~ """\)""".r ^^ {_.toString()}
@@ -13,6 +13,8 @@ class WebsiteParser extends RegexParsers{
   def fullLink = """\(""".r ~ link ~ """:""".r ~ """\(""".r ~ identifier ~ """\),""".r ~ destination ~  """\)""".r ^^ {_.toString()}
   def fullForm = """\(""".r ~ form ~ """:""".r ~ repsep(formEl, ",") ^^ {_.toString()}
   def formEl = label ~ """,""".r ~ (input | textArea) ^^ {_.toString()}
+  //def fullText;
+  def textContent = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // Identifier = (identifier),
   override protected val whiteSpace: Regex = """\s*|//.*""".r
   // Destination = (destination)
@@ -39,17 +41,20 @@ class WebsiteParser extends RegexParsers{
   // formular = (<label ~ input ~ placeholder>)
   def form: Parser[String] = """Form""".r
   // paragraph = (paragraph)
-  def paragraph: Parser[String] = """Paragraph""".r
+  def paragraph: Parser[String] = """\(Paragraph: """.r ~ textContent ~ """\)""".r ^^ {_.toString()}
   // headline = (headline) // Hier ggf. mehrere für Unterscheidung h1-h4?
-  def headline: Parser[String] = """Headline""".r
+  def headline: Parser[String] = """\(Headline:""".r ~ textContent ~ """\)""".r ^^ {_.toString()}
+  def texteEl = paragraph | headline
   // text = (text)
-  def text: Parser[String] = """Text""".r
+  def text: Parser[String] = """\(Text: """.r ~ repsep(texteEl, ",") ~ """\)""".r ^^ {_.toString()}
   // icon = (icon)
-  def icon: Parser[String] = """Icon""".r
+  def icon: Parser[String] = """\(http://www""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // listelement = (listelement)
-  def listElement: Parser[String] = """ListElement""".r
+  def listElement: Parser[String] = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // list = (listelement)*
-  def list: Parser[String] = """\(""".r ~ listElement ~ """\*""".r ~ """\)""".r ^^ {_.toString()}
+  def unorderedList: Parser[String] = """\(List unordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {_.toString()}
+  def orderedList: Parser[String] = """\(List ordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {_.toString()}
+
   // image = (image)
   def image: Parser[String] = """Image""".r
   // footer = (footer: <link ~ link>)
