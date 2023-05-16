@@ -6,17 +6,15 @@ import scala.util.parsing.combinator.RegexParsers
 class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!:,&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([_a-zA-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
-
-
   def fullTable = """\(""".r ~  tableWrapEl ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {_.toString()}
   def tableRowHead = """\(""".r ~ tableWrapEl ~ repsep(tablehead, ",") ~ """\)""".r ^^ {_.toString()}
   def tableRowData = """\(""".r ~ tableWrapEl ~ repsep(tabledata, ",") ~ """\)""".r ^^ {_.toString()}
   def tableWrapEl = (tablerow ~ """:""".r) | (table ~ """:""".r)
   def fullLink = """\(""".r ~ link ~ """:""".r ~ """\(""".r ~ identifier ~ """\),""".r ~ destination ~  """\)""".r ^^ {_.toString()}
+  def fullForm = """\(""".r ~ form ~ """:""".r ~ repsep(formEl, ",") ^^ {_.toString()}
+  def formEl = label ~ """,""".r ~ (input | textArea) ^^ {_.toString()}
   // Identifier = (identifier),
-
   override protected val whiteSpace: Regex = """\s*|//.*""".r
-
   // Destination = (destination)
   def destination: Parser[String] = """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^ {_.toString()}
   // Tablehead = (tablehead),
@@ -24,7 +22,6 @@ class WebsiteParser extends RegexParsers{
   // Tabledata = (tabledata),
   def tabledata: Parser[String] = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // Tablerowhead = (tablerow: <tablehead+>),
-
   def tablerow: Parser[String] =  """Tablerow""".r
 
   def table: Parser[String] =  """Table""".r
@@ -32,15 +29,15 @@ class WebsiteParser extends RegexParsers{
   // Link = (link: <identifier ~ destination>)
   def link: Parser[String] = """Link""".r
   // textArea = (textarea)
-  def textArea: Parser[String] = """TextArea""".r
+  def textArea: Parser[String] = """\(Textarea: """.r ~ placeholder ~ """\)""".r ^^ {_.toString()}
   // input = (<label ~ input ~ placeholder>) // Vielleicht müssen die Styling-Tags auch hier mit rein später?! Placeholder ist ja so gesehen ein Teil des Inputs, aber programmiertechnisch ein Styling bzw eine Zusatzspezifikation des Input-Tags
-  def input: Parser[String] = """\(""".r ~ label ~ input ~ placeholder ~ """\),""".r ^^ {_.toString()}
+  def input: Parser[String] = """\(Input: """.r ~ placeholder ~ """\)""".r ^^ {_.toString()}
   // label = (label)
-  def label: Parser[String] = """\(""".r ~ identifier ~ """\),""".r ^^ {_.toString()}
+  def label: Parser[String] = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
  // placeholder = (placeholder)
-  def placeholder: Parser[String] = """Placeholder""".r
+  def placeholder: Parser[String] = """\(""".r ~ identifier ~ """\)""".r ^^ {_.toString()}
   // formular = (<label ~ input ~ placeholder>)
-  def formular: Parser[String] = """Input""".r
+  def form: Parser[String] = """Form""".r
   // paragraph = (paragraph)
   def paragraph: Parser[String] = """Paragraph""".r
   // headline = (headline) // Hier ggf. mehrere für Unterscheidung h1-h4?
