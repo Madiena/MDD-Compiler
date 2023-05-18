@@ -9,26 +9,3 @@ object TestWebsiteParser extends WebsiteParser {
     }
   }
 }
-
-/*
-
-
-
-(Link: (Identifier), (Destination.html))," +
-      "                   (Link: (Identifier), (Destination.html))
-
-(Body: (Table: (Tablerow: (Tablehead), " +
-      "                                          (Tablehead))," +
-      "                               (Tablerow: (Tabledata)," +
-      "                                          (Tabledata))))
-
-
-      ,
-
-      (Footer: (Link: (Identifier), (Destination.html))," +
-      "                                    (Link: (Identifier), (Destination.html))))" +
-      "
-
-      //TODO: Check on Footer levels
-
- */

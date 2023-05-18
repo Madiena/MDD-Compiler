@@ -4,6 +4,7 @@ import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
 class WebsiteParser extends RegexParsers{
+  def bodyEl = image | text | unorderedList | orderedList | icon | fullTable | fullLink | fullForm ^^ {_.toString()}
   def identifier: Parser[String] = """(([/\-!.:,'&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([_a-zA-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
   def fullTable = """\(""".r ~  tableWrapEl ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {_.toString()}
@@ -62,12 +63,12 @@ class WebsiteParser extends RegexParsers{
   def navbar: Parser[String] = """\(Navbar: """.r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {_.toString()}
   def navbarEl = fullLink | navbarList
   // header = (header: <image ~ navbar>) // CAVE: Tatsächlich ist der header leer, logo befindet sich im Body.. aber sollte ja trotzdem gleich aussehen und irrelevant sein am Ende
-  def header: Parser[String] = """\(""".r ~ image ~ navbar ~ """\)""".r ^^ {_.toString()}
+  def header: Parser[String] = """Header: """.r ~ image ~ """,""".r ~ navbar ^^ {_.toString()}
   // body = (body: <image* ~ text* ~ list* ~ icon* ~ table* ~ formular* ~ link*>)
-  def body: Parser[String] = """Body""".r ^^ {_.toString()}
+  def body: Parser[String] = """Body: """.r ~ repsep(bodyEl, ",") ^^ {_.toString()}
   // page = (page: <header ~ body ~ footer)
-  def page: Parser[String] = """\(""".r ~ header ~ body ~ footer ~ """\)""".r ^^ {_.toString()}
+  def page: Parser[String] = """Page: \(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {_.toString()}
   // website = (website: <page*>)
-  def website: Parser[String] = """\(""".r ~ page ~ """\*""".r ~ """\)""".r ^^ {_.toString()}
+  def website: Parser[String] = """Website: \(""".r ~ page ~ """\)""".r ^^ {_.toString()}
 
 }
