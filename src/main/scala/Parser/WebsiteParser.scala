@@ -5,10 +5,10 @@ import scala.util.parsing.combinator.RegexParsers
 class WebsiteParser extends RegexParsers{
   def website: Parser[String] = """Website: \(""".r ~ page ~ """\)""".r ^^ {_.toString()}
   def page: Parser[String] = """Page: \(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {_.toString()}
-  def header: Parser[String] = """Header: """.r ~ image ~ """,""".r ~ navbar ^^ {_.toString()}
-  def body: Parser[String] = """Body: """.r ~ repsep(bodyEl, ",") ^^ {_.toString()}
+  def header: Parser[String] = """\(Header: """.r ~ image ~ """,""".r ~ navbar ~ """\)""".r ^^ {_.toString()}
+  def body: Parser[String] = """\(Body: """.r ~ repsep(bodyEl, ",") ~ """\)""".r ^^ {_.toString()}
   def bodyEl = image | text | unorderedList | orderedList | icon | fullTable | link | form ^^ {_.toString()}
-  def footer: Parser[String] = """Footer""".r ^^ {_.toString()}
+  def footer: Parser[String] = """\(Footer:""".r ~ repsep(link, ",") ~  """\)""".r ^^ {_.toString()}
   def image: Parser[String] = """\(Image: \(""".r ~ word ~ """[.]jpg\)\)""".r ^^ {_.toString()}
   def navbar: Parser[String] = """\(Navbar: """.r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {_.toString()}
   def navbarList = """\(List: """.r ~ repsep(link, ",") ~ """\)""".r ^^ {_.toString()}
