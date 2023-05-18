@@ -35,4 +35,36 @@ class WebsiteParser extends RegexParsers{
   def identifier: Parser[String] = """(([/\-!.:,'&a-zA-Z01-9\d\s])+)""".r ^^ {_.toString}
   def word: Parser[String] = """([_a-zA-Z]+)|(0|[1-9]\d*)""".r ^^ {_.toString}
   override protected val whiteSpace: Regex = """\s*|//.*""".r
+
+
+  case class Website() {
+  }
+  case class Header() {
+  }
+  case class Body() {
+  }
+  case class Footer() {
+  }
+  case class Image() {
+  }
+  case class Navbar() {
+  }
+  case class Link() {
+  }
+  case class NavbarList() {
+  }
+  case class Text() {
+  }
+  case class Headline() {
+  }
+  case class Paragraph() {
+  }
+  case class UnorderedList() {
+  }
+  case class OrderedList() {
+  }
+  case class ListElement() {
+  }
+  case class Icon() {
+  }
 }
