@@ -37,9 +37,11 @@ class WebsiteParser extends RegexParsers{
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
 
-  case class Website() {
+  case class Website(pageCount: Int){
+    override def toString = "Number of Subpages: " + pageCount
   }
-  case class Page() {
+  case class Page(pageTitle: String) {
+    override def toString = "Name of Subpage: " + pageTitle
   }
   case class Header() {
   }
