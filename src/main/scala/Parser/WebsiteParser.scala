@@ -39,6 +39,8 @@ class WebsiteParser extends RegexParsers{
 
   case class Website() {
   }
+  case class Page() {
+  }
   case class Header() {
   }
   case class Body() {
@@ -50,6 +52,10 @@ class WebsiteParser extends RegexParsers{
   case class Navbar() {
   }
   case class Link() {
+  }
+  case class Destination() {
+  }
+  case class Identifier() {
   }
   case class NavbarList() {
   }
