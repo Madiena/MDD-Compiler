@@ -37,23 +37,25 @@ class WebsiteParser extends RegexParsers{
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
 
-  case class Website(pageCount: Int){
+  case class Website(pageCount: Int, pageList: List[Page]){
     override def toString = "Number of Subpages: " + pageCount
   }
-  case class Page(pageTitle: String) {
+  case class Page(pageTitle: String, header: Header, body: Body, footer: Footer) {
     override def toString = "Name of Subpage: " + pageTitle
   }
-  case class Header() {
+  case class Header(image: Image, navbar: Navbar) {
   }
-  case class Body() {
+  case class Body(bodyElementList: List[BodyEl]) {
   }
-  case class Footer() {
+  case class Footer(linkList: List[Link]) {
   }
-  case class Image() {
+  case class Image(altText: String) {
+    override def toString = "Alternative Text for Image: " + altText
   }
-  case class Navbar() {
+  case class Navbar(navbarLinks: List[Link]) {
   }
-  case class Link() {
+  case class Link(destination: Destination, text: Text) {
+    override def toString = "Link's Destination: " + destination + "Link's Text: " + text
   }
   case class Destination() {
   }
