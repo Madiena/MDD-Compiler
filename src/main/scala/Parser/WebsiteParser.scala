@@ -58,6 +58,7 @@ class WebsiteParser extends RegexParsers{
     override def toString = "Link's Destination: " + destination + "Link's Text: " + text
   }
   case class Destination() {
+    override def toString = "Link's Destination: " + this
   }
   case class Identifier() {
   }
