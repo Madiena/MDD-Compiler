@@ -2,7 +2,7 @@ package Parser
 
 object TestWebsiteParser extends WebsiteParser {
   def main(args: Array[String]): Unit = {
-   parse(website, "Website: (" +
+   parseAll(website, "Website: (" +
       "   Page: (" +
       "       (Header: (Image: (image.jpg)), (Navbar: (Link:(Id),(Destin.html)))), (Body: (Image: (image.jpg))), (Footer: (Link:(Id),(Destin.html)))" +
       "       " +
@@ -27,5 +27,6 @@ object TestWebsiteParser extends WebsiteParser {
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
       case Error(msg, _) => ("Jetzt ist aber was ganz kaputt gegangen. Das hast du gemacht: " + msg)
     }
+    System.out.println("----------------------------------parsing done------------------------------------")parseAll()
   }
 }
