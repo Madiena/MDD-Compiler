@@ -16,124 +16,129 @@ class WebsiteParser extends RegexParsers {
 
   def header: Parser[String] =
     """\(Header: """.r ~ image ~ """,""".r ~ navbar ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~
     }
 
-  def body: Parser[String] =
+  def body: Parser[Body] =
     """\(Body: """.r ~ repsep(bodyEl, ",") ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ elList ~ s2 => Body(elList)
     }
 
-  def bodyEl = image | text | unorderedList | orderedList | icon | fullTable | link | form ^^ {
-    _.toString()
-  }
+  def bodyEl: Parser[BodyElement] = image | text | unorderedList | orderedList | icon | fullTable | link | form
 
-  def footer: Parser[String] =
+  def footer: Parser[Footer] =
     """\(Footer:""".r ~ repsep(link, ",") ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ liList ~ s2 => Footer(liList)
     }
 
-  def image: Parser[String] =
+  def image: Parser[Image] =
     """\(Image: \(""".r ~ word ~ """[.]jpg\)\)""".r ^^ {
-      _.toString()
+      case s1 ~ id ~ s2 => Image(id)
     }
 
-  def navbar: Parser[String] =
+  def navbar: Parser[Navbar] =
     """\(Navbar: """.r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ elList ~ s2 => Navbar(elList)
     }
 
-  def navbarList =
-    """\(List: """.r ~ repsep(link, ",") ~ """\)""".r ^^ {
-      _.toString()
+  def navbarList: Parser[NavbarList] =
+    """\(List: """.r ~ repsep(navLink, ",") ~ """\)""".r ^^ {
+      case s1 ~ liList ~ s2 => NavbarList(liList)
     }
 
-  def navbarEl = link | navbarList ^^ {
-    _.toString()
-  }
+  def navLink: Parser[NavLink] =
+    """\(Link:""".r ~ """\(""".r ~ linkId ~ """\),""".r ~ destination ~ """\)""".r ^^ {
+      case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => NavLink(des, li)
+    }
+  def navbarEl: Parser[NavbarElement] = navLink | navbarList
 
-  def link =
-    """\(Link:""".r ~ """\(""".r ~ identifier ~ """\),""".r ~ destination ~ """\)""".r ^^ {
-      _.toString()
+  def linkId: Parser[LinkIdentifier] = identifier ^^ {id => LinkIdentifier(id)}
+
+  def link: Parser[Link] =
+    """\(Link:""".r ~ """\(""".r ~ linkId ~ """\),""".r ~ destination ~ """\)""".r ^^ {
+      case s1 ~ s2 ~ li ~ s3 ~ des ~ s4  => Link(des, li)
     }
 
-  def destination: Parser[String] =
+  def destination: Parser[Destination] =
     """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ id ~ s2 ~ s3 => Destination(id)
     }
 
-  def text: Parser[String] =
-    """\(Text: """.r ~ headline ~ paragraph ~ """\)""".r ^^ {
-      _.toString()
+  def text: Parser[Text] =
+    """\(Text: """.r ~ repsep(textEl, ",") ~ """\)""".r ^^ {
+      case s1 ~ teList ~ s2 => Text(teList)
     }
 
-  def headline: Parser[String] =
+  def textEl: Parser[TextEl] = headline | paragraph
+
+  def headline: Parser[Headline] =
     """\(Headline:""".r ~ wrappedIdentifier ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ id ~ s2 => Headline(id)
     }
 
-  def paragraph: Parser[String] =
+  def paragraph: Parser[Paragraph] =
     """\(Paragraph: """.r ~ wrappedIdentifier ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ id ~ s2 => Paragraph(id)
     }
 
-  def unorderedList: Parser[String] =
-    """\(List unordered:""".r ~ repsep(wrappedIdentifier, ",") ~ """\)""".r ^^ {
-      _.toString()
+  def unorderedList: Parser[UnorderedList] =
+    """\(List unordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {
+      case s1 ~ listElList ~ s2 => UnorderedList(listElList)
     }
 
-  def orderedList: Parser[String] =
-    """\(List ordered:""".r ~ repsep(wrappedIdentifier, ",") ~ """\)""".r ^^ {
-      _.toString()
+  def orderedList: Parser[OrderedList] =
+    """\(List ordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {case s1 ~ listElList ~ s2 => OrderedList(listElList)
     }
 
-  def icon: Parser[String] =
+  def listElement: Parser[ListElement] = wrappedIdentifier ^^ { id => ListElement(id) }
+
+  def icon: Parser[Icon] =
     """\(Icon: \(http://www[.]""".r ~ identifier ~ """\)\)""".r ^^ {
-      _.toString()
+      case s1 ~ id ~ s3 => Icon(id)
     }
 
-  def fullTable =
+  def fullTable: Parser[Table] =
     """\(""".r ~ tableWrapEl ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ s2 ~ trh ~ s3 ~ trdList ~ s4 => Table(trh, trdList)
     }
 
-  def tableWrapEl = """Tablerow:""".r | """Table:""".r
+  def tableWrapEl: Parser[String] = """Tablerow:""".r | """Table:""".r
 
-  def tableRowHead =
+  def tableRowHead: Parser[Tablerowhead] =
     """\(""".r ~ tableWrapEl ~ repsep(tablehead, ",") ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ s2 ~ thList ~ s3 => Tablerowhead(thList)
     }
 
-  def tableRowData =
-    """\(""".r ~ tableWrapEl ~ repsep(wrappedIdentifier, ",") ~ """\)""".r ^^ {
-      _.toString()
+  def tableData: Parser[Tabledata] = wrappedIdentifier ^^ {id => Tabledata(id)}
+
+  def tableRowData: Parser[Tablerowdata] =
+    """\(""".r ~ tableWrapEl ~ repsep(tableData, ",") ~ """\)""".r ^^ {
+      case s1 ~ s2 ~ tdList ~ s3 => Tablerowdata(tdList)
     }
 
-  def tablehead: Parser[String] =
-    """\(""".r ~ word ~ """\)""".r ^^ {
-      _.toString()
+  def tablehead: Parser[Tablehead] =
+    """\(""".r ~ word ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Tablehead(id)
     }
 
-  def form =
+  def form: Parser[String] =
     """\(Form: """.r ~ repsep(formEl, ",") ^^ {
       _.toString()
     }
 
-  def formEl = wrappedIdentifier ~ """,""".r ~ (input | textArea) ^^ {
-    _.toString()
+  def formEl: Parser[Form] = label ~ """,""".r ~ (input | textArea) ^^ { case la ~ s ~ el => Form(la, el)
   }
 
-  def input: Parser[String] =
-    """\(Input: """.r ~ wrappedIdentifier ~ """\)""".r ^^ {
-      _.toString()
-    }
+  def label: Parser[Label] = wrappedIdentifier ^^ { id => Label(id) }
 
-  def textArea: Parser[String] =
-    """\(Textarea: """.r ~ wrappedIdentifier ~ """\)""".r ^^ {
-      _.toString()
-    }
+  def input: Parser[InputEl] =
+    """\(Input: """.r ~ placeHolder ~ """\)""".r ^^ { case s1 ~ ph ~ s2 => InputEl(ph) }
 
-  def wrappedIdentifier =
+  def placeHolder: Parser[Placeholder] = wrappedIdentifier ^^ { id => Placeholder(id) }
+
+  def textArea: Parser[TextArea] =
+    """\(Textarea: """.r ~ placeHolder ~ """\)""".r ^^ { case s1 ~ ph ~ s2 => TextArea(ph) }
+
+  def wrappedIdentifier: Parser[String] =
     """\(""".r ~ identifier ~ """\)""".r ^^ {
       _.toString()
     }
@@ -156,7 +161,7 @@ class WebsiteParser extends RegexParsers {
   }
 
   case class Website(page: Page) {
-    override def toString = "Website: (" + page + ")"
+    override def toString: String = "Website: (" + page + ")"
   }
 
   case class Page(header: Header, body: Body, footer: Footer) {
@@ -219,7 +224,7 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = identifier
   }
 
-  case class NavbarList(links: List[Link]) extends NavbarElement {
+  case class NavbarList(links: List[NavLink]) extends NavbarElement {
     val sb = new StringBuilder();
     for (link <- links) {
       sb.addString(sb.append(link), ",")
@@ -228,15 +233,23 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = "(List unordered: " + sb.toString() + ")"
   }
 
-  case class Text(headline: Headline, paragraph: Paragraph) extends BodyElement {
-    override def toString: String = "(Text: " + headline + "," + paragraph + ")"
+  case class Text(textel: List[TextEl]) extends BodyElement {
+    val sb = new StringBuilder();
+    for (el <- textel) {
+      sb.addString(sb.append(link), ",")
+    }
+    override def toString: String = "(Text: " + sb.toString() + ")"
   }
 
-  case class Headline(identifier: String) {
+  sealed abstract class TextEl() {
+
+  }
+
+  case class Headline(identifier: String) extends TextEl {
     override def toString: String = "(Headline: (" + identifier + "))"
   }
 
-  case class Paragraph(identifier: String) {
+  case class Paragraph(identifier: String) extends TextEl {
     override def toString: String = "(Paragraph: (" + identifier + "))"
   }
 
@@ -266,18 +279,13 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = identifier
   }
 
-  case class Table(tablerowheads: List[Tablerowhead], tablerowdatas: List[Tablerowdata]) extends BodyElement {
-    var sb = new StringBuilder()
-    for (trh <- tablerowheads) {
-      sb.addString(sb.append(trh), ",")
-    }
-    val str: String = sb.toString()
-    sb = new StringBuilder()
+  case class Table(tablerowhead: Tablerowhead, tablerowdatas: List[Tablerowdata]) extends BodyElement {
+    val sb = new StringBuilder()
     for (trd <- tablerowdatas) {
       sb.addString(sb.append(trd), ",")
     }
 
-    override def toString: String = "(Table: " + str + sb.toString() + ")"
+    override def toString: String = "(Table: " + tablerowhead + sb.toString() + ")"
 
   }
 
@@ -307,11 +315,19 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = identifier
   }
 
-  case class Form(textArea: TextArea) extends BodyElement {
-    override def toString: String = "(Form: " + textArea.toString + ")"
+  case class Form(label: Label, formEl: FormEl) extends BodyElement {
+    override def toString: String = "(Form: " + label.toString + "," + formEl.toString + ")"
   }
 
-  case class TextArea(placeholder: Placeholder) {
+  sealed abstract class FormEl() {
+
+  }
+
+  case class Label(identifier: String) {
+    override def toString: String = "(" + identifier + ")"
+  }
+
+  case class TextArea(placeholder: Placeholder) extends FormEl {
     override def toString: String = "(Textarea: (" + placeholder.toString + "))"
   }
 
@@ -319,7 +335,7 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = identifier
   }
 
-  case class InputEl(placeholder: Placeholder) {
+  case class InputEl(placeholder: Placeholder) extends FormEl {
     override def toString: String = "(Input: (" + placeholder.toString + "))"
   }
 }
