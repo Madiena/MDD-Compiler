@@ -120,7 +120,7 @@ class WebsiteParser extends RegexParsers {
     }
 
   def form: Parser[BodyElement] =
-    """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^
+    """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList)}
 
   def formEl: Parser[FormEl] = """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ { case s1 ~ la ~ s2 ~ el ~ s3=> FormEl(la, el)
   }

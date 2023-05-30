@@ -28,7 +28,7 @@ object TestWebsiteParser extends WebsiteParser {
       case Error(msg, _) => ("Jetzt ist aber was ganz kaputt gegangen. Das hast du gemacht: " + msg)
     }
     System.out.println("----------------------------------parsing done------------------------------------")
-    parse(form, "(Form: (h), (Textarea: (g))") match {
+    parse(form, "(Form: ((h), (Textarea: (g))))") match {
       case Success(matched, _) => println(matched)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
       case Error(msg, _) => ("Jetzt ist aber was ganz kaputt gegangen. Das hast du gemacht: " + msg)

@@ -1,0 +1,5 @@
+package Generator
+
+class Generator {
+
+}

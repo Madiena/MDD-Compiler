@@ -3,7 +3,7 @@ package Utils
 import java.io.FileWriter
 
 object FileWriter {
-  def main(args: Array[String]): Unit = {
+  def writeFile(): Unit = {
     val filename = "src/writeThis.txt"
     val text = "This is Text for youuuu"
 
