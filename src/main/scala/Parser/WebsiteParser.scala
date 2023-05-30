@@ -4,20 +4,19 @@ import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
 class WebsiteParser extends RegexParsers {
-  def website: Parser[String] =
+  def website: Parser[Website] =
     """Website: \(""".r ~ page ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ p ~ s2 => Website(p);
     }
 
-  def page: Parser[String] =
+  def page: Parser[Page] =
     """Page: \(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {
-      _.toString()
+      case s1 ~ hea ~ s2 ~ bod ~ s3 ~ foo ~ s4 => Page(hea, bod, foo)
     }
 
-  def header: Parser[String] =
+  def header: Parser[Header] =
     """\(Header: """.r ~ image ~ """,""".r ~ navbar ~ """\)""".r ^^ {
-      case s1 ~
-    }
+      case s1 ~ im ~ s2 ~ nb ~ s3 => Header(im, nb) }
 
   def body: Parser[Body] =
     """\(Body: """.r ~ repsep(bodyEl, ",") ~ """\)""".r ^^ {
@@ -120,14 +119,11 @@ class WebsiteParser extends RegexParsers {
     """\(""".r ~ word ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Tablehead(id)
     }
 
-  def form: Parser[String] =
-    """\(Form: """.r ~ repsep(formEl, ",") ^^ {
-      _.toString()
-    }
+  def form: Parser[BodyElement] =
+    """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^
 
-  def formEl: Parser[Form] = label ~ """,""".r ~ (input | textArea) ^^ { case la ~ s ~ el => Form(la, el)
+  def formEl: Parser[FormEl] = """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ { case s1 ~ la ~ s2 ~ el ~ s3=> FormEl(la, el)
   }
-
   def label: Parser[Label] = wrappedIdentifier ^^ { id => Label(id) }
 
   def input: Parser[InputEl] =
@@ -315,11 +311,19 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = identifier
   }
 
-  case class Form(label: Label, formEl: FormEl) extends BodyElement {
-    override def toString: String = "(Form: " + label.toString + "," + formEl.toString + ")"
+  case class Form(formEls: List[FormEl]) extends BodyElement {
+    val sb = new StringBuilder();
+    for (el <- formEls) {
+      sb.addString(sb.append("(" + el + ")"), ",")
+    }
+    override def toString: String = "(Form: " + sb.toString() + ")"
   }
 
-  sealed abstract class FormEl() {
+  case class FormEl(label: Label, formEl: FormElEl) {
+    override def toString: String = "(" + label.toString() + "," + formEl.toString + ")"
+  }
+
+  abstract sealed class FormElEl() {
 
   }
 
@@ -327,7 +331,7 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = "(" + identifier + ")"
   }
 
-  case class TextArea(placeholder: Placeholder) extends FormEl {
+  case class TextArea(placeholder: Placeholder) extends FormElEl {
     override def toString: String = "(Textarea: (" + placeholder.toString + "))"
   }
 
@@ -335,7 +339,7 @@ class WebsiteParser extends RegexParsers {
     override def toString: String = identifier
   }
 
-  case class InputEl(placeholder: Placeholder) extends FormEl {
+  case class InputEl(placeholder: Placeholder) extends FormElEl {
     override def toString: String = "(Input: (" + placeholder.toString + "))"
   }
 }
