@@ -1,22 +1,27 @@
 package Parser
+import scala.util.parsing.combinator._
 
+import Utils.Writer
+
+import java.io.File
+import scala.language.postfixOps
 import scala.util.matching.Regex
-import scala.util.parsing.combinator.RegexParsers
 
 class WebsiteParser extends RegexParsers {
   def website: Parser[Website] =
-    """Website: \(""".r ~ page ~ """\)""".r ^^ {
-      case s1 ~ p ~ s2 => Website(p);
+    """Website:""" ~ repsep(page, ",") ^^ {
+      case s1 ~ p => Website(p);
     }
 
-  private def page: Parser[Page] =
-    """Page: \(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {
+  def page: Parser[Page] =
+    """\(Page: \(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)\)""".r ^^ {
       case s1 ~ hea ~ s2 ~ bod ~ s3 ~ foo ~ s4 => Page(hea, bod, foo)
     }
 
   def header: Parser[Header] =
     """\(Header: """.r ~ image ~ """,""".r ~ navbar ~ """\)""".r ^^ {
-      case s1 ~ im ~ s2 ~ nb ~ s3 => Header(im, nb) }
+      case s1 ~ im ~ s2 ~ nb ~ s3 => Header(im, nb)
+    }
 
   def body: Parser[Body] =
     """\(Body: """.r ~ repsep(bodyEl, ",") ~ """\)""".r ^^ {
@@ -45,17 +50,18 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ id ~ s2 ~ liList ~ s3 => NavbarList(id, liList)
     }
 
-  private def navLink: Parser[NavLink] =
+  def navLink: Parser[NavLink] =
     """\(Link:""".r ~ """\(""".r ~ linkId ~ """\),""".r ~ destination ~ """\)""".r ^^ {
       case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => NavLink(des, li)
     }
+
   private def navbarEl: Parser[NavbarElement] = navLink | navbarList
 
-  private def linkId: Parser[LinkIdentifier] = identifier ^^ { id => LinkIdentifier(id)}
+  private def linkId: Parser[LinkIdentifier] = identifier ^^ { id => LinkIdentifier(id) }
 
-  private def link: Parser[Link] =
+   def link: Parser[Link] =
     """\(Link:""".r ~ """\(""".r ~ linkId ~ """\),""".r ~ destination ~ """\)""".r ^^ {
-      case s1 ~ s2 ~ li ~ s3 ~ des ~ s4  => Link(des, li)
+      case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => Link(des, li)
     }
 
   private def destination: Parser[Destination] =
@@ -86,7 +92,7 @@ class WebsiteParser extends RegexParsers {
     }
 
   private def orderedList: Parser[OrderedList] =
-    """\(List ordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {case s1 ~ listElList ~ s2 => OrderedList(listElList)
+    """\(List ordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ { case s1 ~ listElList ~ s2 => OrderedList(listElList)
     }
 
   private def listElement: Parser[ListElement] = wrappedIdentifier ^^ { id => ListElement(id) }
@@ -103,7 +109,7 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ s2 ~ thList ~ s3 => Tablerowhead(thList)
     }
 
-  private def tableData: Parser[Tabledata] = wrappedIdentifier ^^ { id => Tabledata(id)}
+  private def tableData: Parser[Tabledata] = wrappedIdentifier ^^ { id => Tabledata(id) }
 
   private def tableRowData: Parser[Tablerowdata] =
     """\(""".r ~ tableWrapEl ~ repsep(tableData, ",") ~ """\)""".r ^^ {
@@ -115,21 +121,24 @@ class WebsiteParser extends RegexParsers {
     }
 
   def form: Parser[BodyElement] =
-    """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2  => Form(feList);}
+    """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
-  private def formEl: Parser[FormEl] = """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ {
-    case s1 ~ la ~ s2 ~ el ~ s3 => FormEl(la, el);
-  }
-  private def label: Parser[Label] = """\(Label: """.r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
+  private def formEl: Parser[FormEl] =
+    """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ {
+      case s1 ~ la ~ s2 ~ el ~ s3 => FormEl(la, el);
+    }
 
-  private def input: Parser[InputEl] =
+   def label: Parser[Label] = """Label: """.r ~ formId ~ """,""".r ~ wrappedIdentifier ^^ { case s1 ~ id ~ s2 ~ wi=> Label(id, wi) }
+
+   def input: Parser[InputEl] =
     """\(Input: """.r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => InputEl(fi, ph) }
 
-  private def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ {case s1 ~ id ~ s2 => Placeholder(id) }
+  private def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Placeholder(id) }
 
-  private def formId: Parser[FormIdentifier] = """\(Id:""".r ~ wrappedIdentifier ~ """\)""".r ^^{
-    case s1 ~ id ~ s2 => FormIdentifier(id)
-  }
+  private def formId: Parser[FormIdentifier] =
+    """\(Id:""".r ~ wrappedIdentifier ~ """\)""".r ^^ {
+      case s1 ~ id ~ s2 => FormIdentifier(id)
+    }
 
   private def textArea: Parser[TextArea] =
     """\(Textarea: """.r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => TextArea(fi, ph) }
@@ -139,7 +148,11 @@ class WebsiteParser extends RegexParsers {
       _.toString()
     }
 
-  private def hNum: Parser[Int] = """[1-4]""".r ^^ {_.toInt}
+  private def hNum: Parser[Int] =
+    """[1-4]""".r ^^ {
+      _.toInt
+    }
+
   private def identifier: Parser[String] =
     """(([/\-!.:,'&a-zA-Z01-9\d\s])+)""".r
 
@@ -150,18 +163,57 @@ class WebsiteParser extends RegexParsers {
 
 
   case class Image(identifier: String) extends BodyElement {
-    override def toString: String = "(Image: (" + identifier + "))"
+    override def toHtml: String = "<img src=\"" + identifier + "\">"
+
+    override def toString: String = "<img src=\"" + identifier + "\">"
   }
 
-  case class Website(page: Page) {
-    override def toString: String = "Website: (" + page + ")"
+  case class Website(pages: List[Page]) {
+    private val sb = new StringBuilder()
+    for (page <- pages) {
+      sb.addString(sb.append(page), ",")
+    }
+
+    def analyzeSemantics(): Unit = {
+      for (page <- pages) {
+        for (el <- page.body.bodyElements) {
+          el match {
+            case form: Form =>
+              for (ele <- form.formEls) {
+                if (ele.label.toString != ele.formEl.id.toString) {
+                  throw new RuntimeException("Error: Label and Form Identifier must match!")
+                }
+              }
+            case image: Image =>
+              if (!new File(image.identifier).exists()) {
+                throw new RuntimeException("Error: Given file path does not exist!")
+              }
+            case _ =>
+          }
+        }
+      }
+    }
+
+    def buildWebsite(): Unit = {
+      var writer: Writer = new Writer();
+      for (page <- pages) {
+        writer.writeFile(page.toHtml)
+      }
+    }
+
+    override def toString: String = "Website: (" + sb.toString() + ")"
   }
 
   case class Page(header: Header, body: Body, footer: Footer) {
+    def toHtml: String = "<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"misc/bootstrap.css\">\n    <link rel=\"stylesheet\" href=\"misc/my.css\">\n<script src=\"misc/jquery.js\"></script>\n<script src=\"misc/bootstrap.js\"></script>\n</head>" +
+      header.toHtml + body.toHtml + footer.toHtml
+
     override def toString: String = "Page: " + header.toString() + ", " + body.toString() + ", " + footer.toString() + ")"
   }
 
   case class Header(image: Image, navbar: Navbar) {
+    def toHtml: String = "<header>\n<div class=\"jumbotron\">" + image.toHtml + "</div>\n</div>" + navbar.toHtml
+
     override def toString: String = "(Header: " + image.toString() + ", " + navbar.toString() + ")"
   }
 
@@ -170,13 +222,16 @@ class WebsiteParser extends RegexParsers {
     private val htmlBuilder = new StringBuilder()
     for (el <- bodyElements) {
       sb.addString(sb.append(el), ",")
+      htmlBuilder.append(el.toHtml)
     }
-    def toHtml: String = "<body"
+
+    def toHtml: String = "<body>" + htmlBuilder.toString() + "</body>"
+
     override def toString: String = "(Body: " + sb.toString() + ")"
   }
 
   sealed abstract class BodyElement() {
-
+    def toHtml: String
   }
 
   case class Footer(links: List[Link]) {
@@ -186,8 +241,10 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(link), ",")
       htmlBuilder.append(link.toHtml)
     }
+
     def toHtml: String = "<footer class=\"container-fluid text-center\">\n<ul>\n" + htmlBuilder.toString() +
       "</ul>\n</footer>\n"
+
     override def toString: String = "(Footer: " + sb.toString() + ")"
   }
 
@@ -198,8 +255,10 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
+
     def toHtml: String = "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n" +
       "<ul class=\"nav navbar-nav\">\n" + htmlBuilder.toString() + "</ul>\n</div>\n</div>\n</nav>\n"
+
     override def toString: String = "(Navbar: " + sb.toString() + ", " + navbarList.toString() + ")"
   }
 
@@ -208,12 +267,14 @@ class WebsiteParser extends RegexParsers {
   }
 
   case class Link(destination: Destination, identifier: LinkIdentifier) extends BodyElement {
-    def toHtml: String = "<a href=\"" + destination + "\">" + identifier + "</a>\n"
+    override def toHtml: String = "<a href=\"" + destination + "\">" + identifier + "</a>\n"
+
     override def toString: String = "(Link: (" + identifier + "), (" + destination + "))"
   }
 
   case class NavLink(destination: Destination, identifier: LinkIdentifier) extends NavbarElement {
     override def toHtml: String = "<li><a href=\"" + destination + "\">" + identifier + "</a></li>\n"
+
     override def toString: String = "(Link: (" + identifier + "), (" + destination + "))"
   }
 
@@ -233,9 +294,11 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(link), ",")
       htmlBuilder.append(link.toHtml)
     }
+
     override def toHtml: String = "<li class =\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">" + id +
       "\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">" + htmlBuilder.toString() + "\n</ul>\n</li>\n"
-    override def toString: String = "(Dropdown: (" + id + "),"  + sb.toString() + ")"
+
+    override def toString: String = "(Dropdown: (" + id + ")," + sb.toString() + ")"
   }
 
   case class Text(textel: List[TextEl]) extends BodyElement {
@@ -245,7 +308,9 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
-    def toHtml: String = "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n" + htmlBuilder.toString() + "</div>\n</div>\n"
+
+    override def toHtml: String = "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n" + htmlBuilder.toString() + "</div>\n</div>\n"
+
     override def toString: String = "(Text: " + sb.toString() + ")"
   }
 
@@ -255,11 +320,13 @@ class WebsiteParser extends RegexParsers {
 
   case class Headline(identifier: String, num: Int) extends TextEl {
     override def toHtml: String = "<h" + num.toString + ">" + identifier + "</h" + num.toString + ">\n"
+
     override def toString: String = "(Headline: (" + identifier + "))"
   }
 
   case class Paragraph(identifier: String) extends TextEl {
     override def toHtml: String = "<p style=\"margin-bottom: 25px\">" + identifier + "</p\n>"
+
     override def toString: String = "(Paragraph: (" + identifier + "))"
   }
 
@@ -270,7 +337,9 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append("(" + el + ")"), ",")
       htmlBuilder.append(el.toHtml)
     }
-    def toHtml: String = "<div class=\"col-sm-8 text-left bg-content\">\n<ul>" + htmlBuilder.toString() + "</ul></div>"
+
+    override def toHtml: String = "<div class=\"col-sm-8 text-left bg-content\">\n<ul>" + htmlBuilder.toString() + "</ul></div>"
+
     override def toString: String = "(List unordered: " + sb.toString() + ")"
   }
 
@@ -281,12 +350,15 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append("(" + el + ")"), ",")
       htmlBuilder.append(el.toHtml)
     }
-    def toHtml: String = "<div class=\"col-sm-8 text-left bg-content\">\n<ol>" + htmlBuilder.toString() + "</ol></div>"
+
+    override def toHtml: String = "<div class=\"col-sm-8 text-left bg-content\">\n<ol>" + htmlBuilder.toString() + "</ol></div>"
+
     override def toString: String = "(List ordered: " + sb.toString() + ")"
   }
 
   case class ListElement(identifier: String) {
     def toHtml: String = "<li>" + identifier + "</li>\n"
+
     override def toString: String = identifier
   }
 
@@ -297,7 +369,9 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(trd), ",")
       htmlBuilder.append(trd.toHtml)
     }
-    def toHtml: String = "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n" + tablerowhead.toHtml + "\n" + htmlBuilder.toString() + "</table>\n</div>\n"
+
+    override def toHtml: String = "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n" + tablerowhead.toHtml + "\n" + htmlBuilder.toString() + "</table>\n</div>\n"
+
     override def toString: String = "(Table: " + tablerowhead + sb.toString() + ")"
 
   }
@@ -309,7 +383,9 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append("(" + td + ")"), ",")
       htmlBuilder.append(td.toHtml)
     }
+
     def toHtml: String = "<tr>\n" + htmlBuilder.toString() + "</tr>"
+
     override def toString: String = "(Tablerow: " + sb.toString() + ")"
   }
 
@@ -320,17 +396,21 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append("(" + th + ")"), ",")
       htmlBuilder.append(th.toHtml)
     }
+
     def toHtml: String = "<thead>\n<tr>\n" + htmlBuilder.toString() + "</tr>\n</thead>"
+
     override def toString: String = "(Tablerow: " + sb.toString() + ")"
   }
 
   case class Tablehead(identifier: String) {
     def toHtml: String = "<th class=\"text-center\">" + identifier + "</th>\n"
+
     override def toString: String = identifier
   }
 
   case class Tabledata(identifier: String) {
-    def toHtml: String = "<td>"+ identifier + "</td>\n"
+    def toHtml: String = "<td>" + identifier + "</td>\n"
+
     override def toString: String = identifier
   }
 
@@ -341,27 +421,34 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append("(" + el + ")"), ",")
       htmlBuilder.append(el.toHtml)
     }
-    def toHtml: String = "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">" +
+
+    override def toHtml: String = "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">" +
       "\n" + htmlBuilder.toString() + "<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>"
+
     override def toString: String = "(Form: " + sb.toString() + ")"
   }
 
   case class FormEl(label: Label, formEl: FormElEl) {
     def toHtml: String = label.toHtml + "\n" + formEl.toHtml + "\n"
+
     override def toString: String = "(" + label.toString() + "," + formEl.toString + ")"
   }
 
   abstract sealed class FormElEl() {
+    def id: FormIdentifier
+
     def toHtml: String
   }
 
   case class Label(id: FormIdentifier, identifier: String) {
     def toHtml: String = "<label for=\"" + id + "\">" + identifier + ":</label>"
+
     override def toString: String = "(Label" + FormIdentifier.toString() + "," + identifier + ")"
   }
 
   case class TextArea(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
     override def toHtml: String = "<textarea style=\"margin-bottom: 50px\" id=\"" + id.toString + "\" class=\"form-control\" placeholder=\"" + placeholder.toString + "\" style=\"height:200px\"></textarea>"
+
     override def toString: String = "(Textarea: (" + placeholder.toString + "))"
 
   }
@@ -375,7 +462,8 @@ class WebsiteParser extends RegexParsers {
   }
 
   case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
-    override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\""+ id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
+    override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"" + id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
+
     override def toString: String = "(Input: (" + placeholder.toString + "))"
 
   }
