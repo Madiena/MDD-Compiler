@@ -45,7 +45,7 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ elList ~ s2 => Navbar(elList)
     }
 
-  private def navbarList: Parser[NavbarList] =
+   def navbarList: Parser[NavbarList] =
     """\(Dropdown: """.r ~ wrappedIdentifier ~ """,""".r ~ repsep(navLink, ",") ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 ~ liList ~ s3 => NavbarList(id, liList)
     }
@@ -64,7 +64,7 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => Link(des, li)
     }
 
-  private def destination: Parser[Destination] =
+   def destination: Parser[Destination] =
     """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 ~ s3 => Destination(id)
     }
@@ -86,7 +86,7 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ id ~ s2 => Paragraph(id)
     }
 
-  private def unorderedList: Parser[UnorderedList] =
+   def unorderedList: Parser[UnorderedList] =
     """\(List unordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {
       case s1 ~ listElList ~ s2 => UnorderedList(listElList)
     }
@@ -123,7 +123,7 @@ class WebsiteParser extends RegexParsers {
   def form: Parser[BodyElement] =
     """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
-  private def formEl: Parser[FormEl] =
+   def formEl: Parser[FormEl] =
     """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ {
       case s1 ~ la ~ s2 ~ el ~ s3 => FormEl(la, el);
     }
@@ -140,12 +140,12 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ id ~ s2 => FormIdentifier(id)
     }
 
-  private def textArea: Parser[TextArea] =
+   def textArea: Parser[TextArea] =
     """\(Textarea: """.r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => TextArea(fi, ph) }
 
   private def wrappedIdentifier: Parser[String] =
     """\(""".r ~ identifier ~ """\)""".r ^^ {
-      _.toString()
+      case s1~ id ~ s2 => id
     }
 
   private def hNum: Parser[Int] =

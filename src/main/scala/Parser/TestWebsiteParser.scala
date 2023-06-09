@@ -15,11 +15,15 @@ object TestWebsiteParser extends WebsiteParser {
       case Success(matched, _) => println(matched)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }*/
-    parseAll(form, "(Form:(Label: (Id: (fname)), (Vorname)),(Input: (Id: (fname)), (Vorname)),(Label: (Id: (lname)), (Nachname)),(Input: (Id: (lname)), (Nachname)),(Label: (Id: (subject)), (Ihre Nachricht)), (Textarea: (Id: (subject)), (Nachricht)))") match {
+    parseAll(form, "(Form:(Label: (Id: (fname)), (Vorname)),(Input: (Id: (fname)), (Placeholder: (Vorname))),(Label: (Id: (lname)), (Nachname)),(Input: (Id: (lname)), (Placehodlder: (Nachname))),(Label: (Id: (subject)), (Ihre Nachricht)), (Textarea: (Id: (subject)), (Placeholder: (Nachricht))))") match {
       case Success(matched, _) => println(matched.toHtml)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
     parseAll(label, "Label: (Id: (fname)), (Vorname)") match {
+      case Success(matched, _) => println(matched.toHtml)
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+    parseAll(textArea, "(Textarea: (Id: (subject)), (Placeholder: (Nachricht)))") match {
       case Success(matched, _) => println(matched.toHtml)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
