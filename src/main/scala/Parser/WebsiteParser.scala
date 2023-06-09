@@ -95,53 +95,51 @@ class WebsiteParser extends RegexParsers {
     """\(List ordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ { case s1 ~ listElList ~ s2 => OrderedList(listElList)
     }
 
-  private def listElement: Parser[ListElement] = wrappedIdentifier ^^ { id => ListElement(id) }
+  def listElement: Parser[ListElement] = wrappedIdentifier ^^ { id => ListElement(id) }
 
-  private def fullTable: Parser[Table] =
-    """\(""".r ~ tableWrapEl ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {
-      case s1 ~ s2 ~ trh ~ s3 ~ trdList ~ s4 => Table(trh, trdList)
+   def fullTable: Parser[Table] =
+    """\(Table:""".r ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {
+      case s1 ~ trh ~ s2 ~ trdList ~ s3 => Table(trh, trdList)
     }
 
-  private def tableWrapEl: Parser[String] = """Tablerow:""".r | """Table:""".r
-
-  private def tableRowHead: Parser[Tablerowhead] =
-    """\(""".r ~ tableWrapEl ~ repsep(tablehead, ",") ~ """\)""".r ^^ {
-      case s1 ~ s2 ~ thList ~ s3 => Tablerowhead(thList)
+  def tableRowHead: Parser[Tablerowhead] =
+    """\(Tablerow:""".r ~ repsep(tablehead, ",") ~ """\)""".r ^^ {
+      case s1 ~ thList ~ s2 => Tablerowhead(thList)
     }
 
-  private def tableData: Parser[Tabledata] = wrappedIdentifier ^^ { id => Tabledata(id) }
+  def tableData: Parser[Tabledata] = wrappedIdentifier ^^ { id => Tabledata(id) }
 
-  private def tableRowData: Parser[Tablerowdata] =
-    """\(""".r ~ tableWrapEl ~ repsep(tableData, ",") ~ """\)""".r ^^ {
-      case s1 ~ s2 ~ tdList ~ s3 => Tablerowdata(tdList)
+  def tableRowData: Parser[Tablerowdata] =
+    """\(Tablerow:""".r ~ repsep(tableData, ",") ~ """\)""".r ^^ {
+      case s1 ~ tdList ~ s2 => Tablerowdata(tdList)
     }
 
-  private def tablehead: Parser[Tablehead] =
+  def tablehead: Parser[Tablehead] =
     """\(""".r ~ word ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Tablehead(id)
     }
 
   def form: Parser[BodyElement] =
-    """\(Form: """.r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
+    """\(Form:""".r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
    def formEl: Parser[FormEl] =
     """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ {
       case s1 ~ la ~ s2 ~ el ~ s3 => FormEl(la, el);
     }
 
-   def label: Parser[Label] = """Label: """.r ~ formId ~ """,""".r ~ wrappedIdentifier ^^ { case s1 ~ id ~ s2 ~ wi=> Label(id, wi) }
+   def label: Parser[Label] = """\(Label:""".r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
 
    def input: Parser[InputEl] =
-    """\(Input: """.r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => InputEl(fi, ph) }
+    """\(Input:""".r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => InputEl(fi, ph) }
 
-  private def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Placeholder(id) }
+  def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Placeholder(id) }
 
-  private def formId: Parser[FormIdentifier] =
+   def formId: Parser[FormIdentifier] =
     """\(Id:""".r ~ wrappedIdentifier ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 => FormIdentifier(id)
     }
 
    def textArea: Parser[TextArea] =
-    """\(Textarea: """.r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => TextArea(fi, ph) }
+    """\(Textarea:""".r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => TextArea(fi, ph) }
 
   private def wrappedIdentifier: Parser[String] =
     """\(""".r ~ identifier ~ """\)""".r ^^ {
@@ -154,7 +152,7 @@ class WebsiteParser extends RegexParsers {
     }
 
   private def identifier: Parser[String] =
-    """(([/\-!.:,'&a-zA-Z01-9\d\s])+)""".r
+    """(([/\-!.:,;'&a-zA-Z01-9öäü\d\s])+)""".r
 
   def word: Parser[String] =
     """([_a-zA-Z]+)|(0|[1-9]\d*)""".r
