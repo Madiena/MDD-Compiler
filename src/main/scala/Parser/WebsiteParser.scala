@@ -1,4 +1,5 @@
 package Parser
+
 import scala.util.parsing.combinator._
 
 import Utils.Writer
@@ -35,17 +36,17 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ liList ~ s2 => Footer(liList)
     }
 
-  private def image: Parser[Image] =
-    """\(Image: \(""".r ~ word ~ """[.]jpg\)\)""".r ^^ {
-      case s1 ~ id ~ s2 => Image(id)
+  def image: Parser[Image] =
+    """\(Image:\(""".r ~ imageIdentifier ~ ("""[.]jpg""".r | """[.]png""".r) ~ """\)\)""".r ^^ {
+      case s1 ~ id ~ s2 ~ s3 => Image(id+s2)
     }
 
-  private def navbar: Parser[Navbar] =
+  def navbar: Parser[Navbar] =
     """\(Navbar: """.r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {
       case s1 ~ elList ~ s2 => Navbar(elList)
     }
 
-   def navbarList: Parser[NavbarList] =
+  def navbarList: Parser[NavbarList] =
     """\(Dropdown: """.r ~ wrappedIdentifier ~ """,""".r ~ repsep(navLink, ",") ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 ~ liList ~ s3 => NavbarList(id, liList)
     }
@@ -59,12 +60,12 @@ class WebsiteParser extends RegexParsers {
 
   private def linkId: Parser[LinkIdentifier] = identifier ^^ { id => LinkIdentifier(id) }
 
-   def link: Parser[Link] =
+  def link: Parser[Link] =
     """\(Link:""".r ~ """\(""".r ~ linkId ~ """\),""".r ~ destination ~ """\)""".r ^^ {
       case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => Link(des, li)
     }
 
-   def destination: Parser[Destination] =
+  def destination: Parser[Destination] =
     """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 ~ s3 => Destination(id + s2)
     }
@@ -86,18 +87,18 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ id ~ s2 => Paragraph(id)
     }
 
-   def unorderedList: Parser[UnorderedList] =
+  def unorderedList: Parser[UnorderedList] =
     """\(List unordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ {
       case s1 ~ listElList ~ s2 => UnorderedList(listElList)
     }
 
-   def orderedList: Parser[OrderedList] =
+  def orderedList: Parser[OrderedList] =
     """\(List ordered:""".r ~ repsep(listElement, ",") ~ """\)""".r ^^ { case s1 ~ listElList ~ s2 => OrderedList(listElList)
     }
 
   def listElement: Parser[ListElement] = wrappedIdentifier ^^ { id => ListElement(id) }
 
-   def fullTable: Parser[Table] =
+  def fullTable: Parser[Table] =
     """\(Table:""".r ~ tableRowHead ~ """,""".r ~ repsep(tableRowData, ",") ~ """\)""".r ^^ {
       case s1 ~ trh ~ s2 ~ trdList ~ s3 => Table(trh, trdList)
     }
@@ -121,38 +122,39 @@ class WebsiteParser extends RegexParsers {
   def form: Parser[BodyElement] =
     """\(Form:""".r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
-   def formEl: Parser[FormEl] =
+  def formEl: Parser[FormEl] =
     """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ {
       case s1 ~ la ~ s2 ~ el ~ s3 => FormEl(la, el);
     }
 
-   def label: Parser[Label] = """\(Label:""".r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
+  def label: Parser[Label] = """\(Label:""".r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
 
-   def input: Parser[InputEl] =
+  def input: Parser[InputEl] =
     """\(Input:""".r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => InputEl(fi, ph) }
 
   def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Placeholder(id) }
 
-   def formId: Parser[FormIdentifier] =
+  def formId: Parser[FormIdentifier] =
     """\(Id:""".r ~ wrappedIdentifier ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 => FormIdentifier(id)
     }
 
-   def textArea: Parser[TextArea] =
+  def textArea: Parser[TextArea] =
     """\(Textarea:""".r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => TextArea(fi, ph) }
 
   private def wrappedIdentifier: Parser[String] =
     """\(""".r ~ identifier ~ """\)""".r ^^ {
-      case s1~ id ~ s2 => id
+      case s1 ~ id ~ s2 => id
     }
 
   private def hNum: Parser[Int] =
     """[1-4]""".r ^^ {
       _.toInt
     }
-
+  private def imageIdentifier: Parser[String] =
+  """(([/\-!:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
   private def identifier: Parser[String] =
-    """(([/\-!.:,;'&a-zA-Z01-9öäü\d\s])+)""".r
+    """(([/\-!.:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
 
   def word: Parser[String] =
     """([_a-zA-Z]+)|(0|[1-9]\d*)""".r
@@ -161,7 +163,7 @@ class WebsiteParser extends RegexParsers {
 
 
   case class Image(identifier: String) extends BodyElement {
-    override def toHtml: String = "<img src=\"" + identifier + "\">"
+    override def toHtml: String = "<img src=\"" + identifier + "\">\n"
 
     override def toString: String = "<img src=\"" + identifier + "\">"
   }
@@ -223,7 +225,7 @@ class WebsiteParser extends RegexParsers {
       htmlBuilder.append(el.toHtml)
     }
 
-    def toHtml: String = "<body>" + htmlBuilder.toString() + "</body>"
+    def toHtml: String = "<body>\n" + htmlBuilder.toString() + "</body>\n"
 
     override def toString: String = "(Body: " + sb.toString() + ")"
   }
@@ -237,7 +239,7 @@ class WebsiteParser extends RegexParsers {
     private val htmlBuilder = new StringBuilder()
     for (link <- links) {
       sb.addString(sb.append(link), ",")
-      htmlBuilder.append(link.toHtml)
+      htmlBuilder.append("<li>\n").append(link.toHtml).append("</li>")
     }
 
     def toHtml: String = "<footer class=\"container-fluid text-center\">\n<ul>\n" + htmlBuilder.toString() +
@@ -253,8 +255,10 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
+
     def toHtml: String = "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n" +
       "<ul class=\"nav navbar-nav\">\n" + htmlBuilder.toString() + "</ul>\n</div>\n</div>\n</nav>\n"
+
     override def toString: String = "(Navbar: " + sb.toString() + ", " + navbarList.toString() + ")"
   }
 
@@ -264,11 +268,13 @@ class WebsiteParser extends RegexParsers {
 
   case class Link(destination: Destination, identifier: LinkIdentifier) extends BodyElement {
     override def toHtml: String = "<a href=\"" + destination + "\">" + identifier + "</a>\n"
+
     override def toString: String = "(Link: (" + identifier + "), (" + destination + "))"
   }
 
   case class NavLink(destination: Destination, identifier: LinkIdentifier) extends NavbarElement {
     override def toHtml: String = "<li><a href=\"" + destination + "\">" + identifier + "</a></li>\n"
+
     override def toString: String = "(Link: (" + identifier + "), (" + destination + "))"
   }
 
@@ -288,8 +294,10 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(link), ",")
       htmlBuilder.append(link.toHtml)
     }
+
     override def toHtml: String = "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">" + id +
       "\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n" + htmlBuilder.toString() + "</ul>\n</li>\n"
+
     override def toString: String = "(Dropdown: (" + id + ")," + sb.toString() + ")"
   }
 
@@ -300,7 +308,9 @@ class WebsiteParser extends RegexParsers {
       sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
+
     override def toHtml: String = "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n" + htmlBuilder.toString() + "</div>\n</div>\n"
+
     override def toString: String = "(Text: " + sb.toString() + ")"
   }
 

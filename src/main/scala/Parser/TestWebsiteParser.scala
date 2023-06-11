@@ -15,10 +15,28 @@ object TestWebsiteParser extends WebsiteParser {
       case Success(matched, _) => println(matched)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }*/
-
-    parseAll(navLink, "(Link: (Startseite), (index.html))") match {
-      case Success(matched, _) =>
-        assert(matched.toHtml == "<li><a href=\"index.html\">Startseite</a></li>\n")
+    parseAll(header, "(Header: (Image:(misc/Logo_THM_MNI.png)), (Navbar: (Link: (Startseite), (index.html)), (Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html))), (Dropdown: (Link: (Projekt: Dokumentationssoftware für Arztpraxen), (projekt1.html)), (Link: (Projekt: Erweiterung von Datalog um die Berechnung von Rängen), (projekt2.html))), (Link: (Literaturempfehlungen), (literaturempfehlungen.html)), (Link: (Stundenplan), (stundenplan.html))))") match {
+      case Success(matched, _) => assert(matched.toHtml == "<header>\n<div class=\"jumbotron\">\n<div class=\"container text-left\">\n<a href=\"index.html\"> <img src=\"misc/Logo_THM_MNI.png\"> </a>\n</div>\n</div>\n<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n<ul class=\"nav navbar-nav\">\n<li><a href=\"index.html\">Startseite</a></li>\n<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">Veranstaltungen\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n<li><a href=\"algorithmen.html\">Algorithmen</a></li>\n<li><a href=\"betriebssysteme.html\">Betriebssysteme</a></li>\n<li><a href=\"computergrafik.html\">Computergrafik</a></li>\n<li><a href=\"archiv.html\">Archiv</a></li>\n</ul>\n</li>\n<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">Projekte\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n<li><a href=\"projekt1.html\">Projekt: Dokumentationssoftware für Arztpraxen</a></li>\n<li><a href=\"projekt2.html\">Projekt: Erweiterung von Datalog um die Berechnung von Rängen</a>\n</li>\n</ul>\n</li>\n<li><a href=\"literaturempfehlungen.html\">Literaturempfehlungen</a></li>\n<li><a href=\"stundenplan.html\">Stundenplan</a></li>\n</ul>\n</div>\n</div>\n</nav>\n</header>\n")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+    parseAll(body, "(Body: (Text: (Headline 1: (Betriebssysteme)), (Headline 4: (Kurzbeschreibung:)), (Paragraph: (In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.)), (Headline 4: (Studiengang:)), (Paragraph: (Informatik B.Sc., Ingenieur-Informatik B.Sc.)), (Headline 4: (Nächste Veranstaltung:)), (Paragraph: (Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr))))") match {
+      case Success(matched, _) => assert(matched.toHtml == "<body>\n<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n<h1>Betriebssysteme</h1>\n<h4>Kurzbeschreibung:</h4>\n<p style=\"margin-bottom: 25px\">In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.</p>\n<h4>Studiengang:</h4>\n<p style=\"margin-bottom: 25px\">Informatik B.Sc., Ingenieur-Informatik B.Sc.</p>\n<h4>Nächste Veranstaltung:</h4>\n<p style=\"margin-bottom: 25px\">Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr</p>\n</div>\n</div>\n</body>\n")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+    parseAll(footer, "(Footer: (Link: (Kontakt), (kontakt.html)), (Link: (Impressum), (impressum.html)))") match {
+      case Success(matched, _) => assert(matched.toHtml == "<footer class=\"container-fluid text-center\">\n<ul>\n<li>\n<a href=\"kontakt.html\">Kontakt</a>\n</li><li>\n<a href=\"impressum.html\">Impressum</a>\n</li></ul>\n</footer>\n")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+    parseAll(image, "(Image:(misc/Logo_THM_MNI.png))") match {
+      case Success(matched, _) => assert(matched.toHtml == "<img src=\"misc/Logo_THM_MNI.png\">\n")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+    parseAll(navbar, "(Navbar: (Link: (Startseite), (index.html)), (Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html))))") match {
+      case Success(matched, _) => assert(matched.toHtml == "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n<ul class=\"nav navbar-nav\">\n<li><a href=\"index.html\">Startseite</a></li>\n<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">Veranstaltungen\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n<li><a href=\"algorithmen.html\">Algorithmen</a></li>\n<li><a href=\"betriebssysteme.html\">Betriebssysteme</a></li>\n<li><a href=\"computergrafik.html\">Computergrafik</a></li>\n<li><a href=\"archiv.html\">Archiv</a></li>\n</ul>\n</li>\n</ul>\n</div>\n</div>\n</nav>\n")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+    parseAll(navbarList, "(Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html)))") match {
+      case Success(matched, _) => assert(matched.toHtml == "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">Veranstaltungen\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n<li><a href=\"algorithmen.html\">Algorithmen</a></li>\n<li><a href=\"betriebssysteme.html\">Betriebssysteme</a></li>\n<li><a href=\"computergrafik.html\">Computergrafik</a></li>\n<li><a href=\"archiv.html\">Archiv</a></li>\n</ul>\n</li>\n")
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
     parseAll(navLink, "(Link: (Startseite), (index.html))") match {
@@ -28,10 +46,6 @@ object TestWebsiteParser extends WebsiteParser {
     }
     parseAll(link, "(Link: (Startseite), (index.html))") match {
       case Success(matched, _) => assert(matched.toHtml == "<a href=\"index.html\">Startseite</a>\n")
-      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
-    }
-    parseAll(navbarList, "(Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html)))") match {
-      case Success(matched, _) => assert(matched.toHtml == "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">Veranstaltungen\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n<li><a href=\"algorithmen.html\">Algorithmen</a></li>\n<li><a href=\"betriebssysteme.html\">Betriebssysteme</a></li>\n<li><a href=\"computergrafik.html\">Computergrafik</a></li>\n<li><a href=\"archiv.html\">Archiv</a></li>\n</ul>\n</li>\n")
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
     parseAll(text, "(Text: (Headline 4: (Kurzbeschreibung:)), (Paragraph: (In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.)))") match {
