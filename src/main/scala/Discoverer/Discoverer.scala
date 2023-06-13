@@ -1,6 +1,6 @@
 package Discoverer
 
-import Parser.WebsiteParser
+import Parser.WebsiteParser._
 
 class Discoverer() {
   var input: String = ""
@@ -25,7 +25,10 @@ class Discoverer() {
         sub = sub.replace(sub, sub.substring(1))
       }
       println(placeholder)
+      val formIdentifier: FormIdentifier = FormIdentifier(id)
+      val ph: Placeholder = Placeholder(placeholder)
+      val inputEl: InputEl = InputEl(formIdentifier, ph)
+      println(inputEl)
     }
   }
-
 }

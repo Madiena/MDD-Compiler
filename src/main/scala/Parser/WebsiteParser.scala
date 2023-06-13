@@ -9,6 +9,7 @@ import scala.language.postfixOps
 import scala.util.matching.Regex
 
 class WebsiteParser extends RegexParsers {
+  import WebsiteParser._
   def website: Parser[Website] =
     """Website:""" ~ repsep(page, ",") ^^ {
       case s1 ~ p => Website(p);
@@ -161,6 +162,9 @@ class WebsiteParser extends RegexParsers {
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
+}
+
+object WebsiteParser {
 
   case class Image(identifier: String) extends BodyElement {
     override def toHtml: String = "<img src=\"" + identifier + "\">\n"
@@ -259,7 +263,7 @@ class WebsiteParser extends RegexParsers {
     def toHtml: String = "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n" +
       "<ul class=\"nav navbar-nav\">\n" + htmlBuilder.toString() + "</ul>\n</div>\n</div>\n</nav>\n"
 
-    override def toString: String = "(Navbar: " + sb.toString() + ", " + navbarList.toString() + ")"
+    override def toString: String = "(Navbar: " + sb.toString() + ")"
   }
 
   sealed abstract class NavbarElement() {
@@ -277,7 +281,6 @@ class WebsiteParser extends RegexParsers {
 
     override def toString: String = "(Link: (" + identifier + "), (" + destination + "))"
   }
-
 
   case class Destination(identifier: String) {
     override def toString: String = identifier
@@ -460,7 +463,6 @@ class WebsiteParser extends RegexParsers {
   case class FormIdentifier(id: String) {
     override def toString: String = id
   }
-
   case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
     override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"" + id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
 
