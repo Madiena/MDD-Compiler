@@ -1,5 +1,0 @@
-package Generator
-
-class Generator {
-
-}
