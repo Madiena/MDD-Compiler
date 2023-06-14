@@ -16,17 +16,17 @@ class WebsiteParser extends RegexParsers {
     }
 
   def page: Parser[Page] =
-    """\(Page: \(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)\)""".r ^^ {
+    """\(Page:\(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)\)""".r ^^ {
       case s1 ~ hea ~ s2 ~ bod ~ s3 ~ foo ~ s4 => Page(hea, bod, foo)
     }
 
   def header: Parser[Header] =
-    """\(Header: """.r ~ image ~ """,""".r ~ navbar ~ """\)""".r ^^ {
+    """\(Header:""".r ~ image ~ """,""".r ~ navbar ~ """\)""".r ^^ {
       case s1 ~ im ~ s2 ~ nb ~ s3 => Header(im, nb)
     }
 
   def body: Parser[Body] =
-    """\(Body: """.r ~ repsep(bodyEl, ",") ~ """\)""".r ^^ {
+    """\(Body:""".r ~ repsep(bodyEl, ",") ~ """\)""".r ^^ {
       case s1 ~ elList ~ s2 => Body(elList)
     }
 
@@ -43,12 +43,12 @@ class WebsiteParser extends RegexParsers {
     }
 
   def navbar: Parser[Navbar] =
-    """\(Navbar: """.r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {
+    """\(Navbar:""".r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {
       case s1 ~ elList ~ s2 => Navbar(elList)
     }
 
   def navbarList: Parser[NavbarList] =
-    """\(Dropdown: """.r ~ wrappedIdentifier ~ """,""".r ~ repsep(navLink, ",") ~ """\)""".r ^^ {
+    """\(Dropdown:""".r ~ wrappedIdentifier ~ """,""".r ~ repsep(navLink, ",") ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 ~ liList ~ s3 => NavbarList(id, liList)
     }
 
@@ -57,7 +57,7 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => NavLink(des, li)
     }
 
-  private def navbarEl: Parser[NavbarElement] = navLink | navbarList
+  private def navbarEl: Parser[NavbarElement] = navbarList | navLink
 
   private def linkId: Parser[LinkIdentifier] = identifier ^^ { id => LinkIdentifier(id) }
 
