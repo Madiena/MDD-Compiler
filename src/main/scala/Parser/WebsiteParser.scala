@@ -16,7 +16,7 @@ class WebsiteParser extends RegexParsers {
     }
 
   def page: Parser[Page] =
-    """\(Page:\(""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)\)""".r ^^ {
+    """\(Page: """.r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {
       case s1 ~ hea ~ s2 ~ bod ~ s3 ~ foo ~ s4 => Page(hea, bod, foo)
     }
 
@@ -209,14 +209,14 @@ object WebsiteParser {
   }
 
   case class Page(header: Header, body: Body, footer: Footer) {
-    def toHtml: String = "<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"misc/bootstrap.css\">\n    <link rel=\"stylesheet\" href=\"misc/my.css\">\n<script src=\"misc/jquery.js\"></script>\n<script src=\"misc/bootstrap.js\"></script>\n</head>" +
-      header.toHtml + body.toHtml + footer.toHtml
+    def toHtml: String = "<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"misc/bootstrap.css\">\n<link rel=\"stylesheet\" href=\"misc/my.css\">\n<script src=\"misc/jquery.js\"></script>\n<script src=\"misc/bootstrap.js\"></script>\n</head>\n" +
+      header.toHtml + body.toHtml + footer.toHtml + "</html>"
 
     override def toString: String = "Page: " + header.toString() + ", " + body.toString() + ", " + footer.toString() + ")"
   }
 
   case class Header(image: Image, navbar: Navbar) {
-    def toHtml: String = "<header>\n<div class=\"jumbotron\">" + image.toHtml + "</div>\n</div>" + navbar.toHtml
+    def toHtml: String = "<header>\n<div class=\"jumbotron\">\n<div class=\"container text-left\">\n" + image.toHtml + "</div>\n</div>\n" + navbar.toHtml + "</header>\n"
 
     override def toString: String = "(Header: " + image.toString() + ", " + navbar.toString() + ")"
   }
@@ -408,13 +408,13 @@ object WebsiteParser {
   case class Tablehead(identifier: String) {
     def toHtml: String = "<th class=\"text-center\">" + identifier + "</th>\n"
 
-    override def toString: String = identifier
+    override def toString: String = "(" + identifier + ")"
   }
 
   case class Tabledata(identifier: String) {
     def toHtml: String = "<td>" + identifier + "</td>\n"
 
-    override def toString: String = identifier
+    override def toString: String = "(" + identifier + ")"
   }
 
   private case class Form(formEls: List[FormEl]) extends BodyElement {
@@ -444,15 +444,15 @@ object WebsiteParser {
   }
 
   case class Label(id: FormIdentifier, identifier: String) {
-    def toHtml: String = "<label for=\"" + id + "\">" + identifier + ":</label>"
+    def toHtml: String = "<label for=\"" + id + "\">" + identifier + "</label>\n"
 
-    override def toString: String = "(Label" + FormIdentifier.toString() + "," + identifier + ")"
+    override def toString: String = "(Label: (Id: (" +  id.toString() + ")), (" + identifier + "))"
   }
 
   case class TextArea(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
     override def toHtml: String = "<textarea style=\"margin-bottom: 50px\" id=\"" + id.toString + "\" class=\"form-control\" placeholder=\"" + placeholder.toString + "\" style=\"height:200px\"></textarea>\n"
 
-    override def toString: String = "(Textarea: (" + placeholder.toString + "))"
+    override def toString: String = "(Textarea: (Id: (" + id.toString + ")), (Placeholder: (" + placeholder.toString + ")))"
 
   }
 
@@ -466,7 +466,7 @@ object WebsiteParser {
   case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
     override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"" + id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
 
-    override def toString: String = "(Input: (" + placeholder.toString + "))"
+    override def toString: String = "(Input: (Id: (" + id + ")), (Placeholder: (" + placeholder.toString + ")))"
 
   }
 }

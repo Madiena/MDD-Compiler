@@ -4,31 +4,115 @@ import Parser.WebsiteParser._
 
 class Discoverer() {
   var input: String = ""
-  var output: String = ""
 
-  def discover(): Unit = {
+  def discover(): Object = {
+    // Input
     if (input.contains("input")) {
-      var sub: String = input.replace(input, input.substring(72))
-      var id: String = ""
-      var placeholder: String = ""
-      println(sub)
-      while(sub.charAt(0) != '"') {
-        id = id + sub.charAt(0)
-        sub = sub.replace(sub, sub.substring(1))
-      }
-      println(id)
-      println(sub)
-      sub = sub.replace(sub, sub.substring(15))
-      println(sub)
-      while (sub.charAt(0) != '"') {
-        placeholder = placeholder + sub.charAt(0)
-        sub = sub.replace(sub, sub.substring(1))
-      }
-      println(placeholder)
-      val formIdentifier: FormIdentifier = FormIdentifier(id)
-      val ph: Placeholder = Placeholder(placeholder)
-      val inputEl: InputEl = InputEl(formIdentifier, ph)
-      println(inputEl)
+      return discoverInput()
+    } // TextArea
+    else if (input.contains("textarea")) {
+      return discoverTextarea()
+    } // Label
+    else if (input.contains("label")) {
+      return discoverLabel()
+    } // Tablehead
+    else if (input.contains("th")) {
+      return discoverTablehead()
+    } // TableRowData
+   /* else if (input.contains("tr")) {
+
+    } // TableData*/
+    else if (input.contains("td")) {
+      return discoverTabledata()
     }
+    ""
+  }
+
+  def discoverInput(): InputEl = {
+    var sub: String = input.replace(input, input.substring(72))
+    var id: String = ""
+    var placeholder: String = ""
+    while (sub.charAt(0) != '"') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(15))
+    while (sub.charAt(0) != '"') {
+      placeholder = placeholder + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val formIdentifier: FormIdentifier = FormIdentifier(id)
+    val ph: Placeholder = Placeholder(placeholder)
+    val inputEl: InputEl = InputEl(formIdentifier, ph)
+    println(inputEl.toString)
+    assert(inputEl.toString == "(Input: (Id: (fname)), (Placeholder: (Vorname)))")
+    inputEl
+  }
+
+  def discoverTextarea(): TextArea = {
+    var sub: String = input.replace(input, input.substring(42))
+    var id: String = ""
+    var placeholder: String = ""
+    while (sub.charAt(0) != '"') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(36))
+    while (sub.charAt(0) != '"') {
+      placeholder = placeholder + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val formIdentifier: FormIdentifier = FormIdentifier(id)
+    val ph: Placeholder = Placeholder(placeholder)
+    val textArea: TextArea = TextArea(formIdentifier, ph)
+    println(textArea)
+    textArea
+  }
+
+  def discoverLabel(): Label = {
+    var sub: String = input.replace(input, input.substring(12))
+    var id: String = ""
+    var in: String = ""
+    while (sub.charAt(0) != '"') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(2))
+    while (sub.charAt(0) != '<') {
+      in = in + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val formIdentifier: FormIdentifier = FormIdentifier(id)
+    val label: Label = Label(formIdentifier, in)
+    println(label)
+    label
+  }
+
+  def discoverTablehead(): Tablehead = {
+    var sub: String = input.replace(input, input.substring(24))
+    var id: String = ""
+    while (sub.charAt(0) != '<') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val tablehead: Tablehead = Tablehead(id)
+    println(tablehead)
+    tablehead
+  }
+
+  def discoverTableRowData(): Unit = {
+
+  }
+
+  def discoverTabledata(): Tabledata = {
+    var sub: String = input.replace(input, input.substring(4))
+    var id: String = ""
+    while (sub.charAt(0) != '<') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val tabledata: Tabledata = Tabledata(id)
+    println(tabledata)
+    tabledata
   }
 }
