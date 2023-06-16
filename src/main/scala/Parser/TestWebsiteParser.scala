@@ -2,6 +2,9 @@ package Parser
 
 object TestWebsiteParser extends WebsiteParser {
   def main(args: Array[String]): Unit = {
+
+    // --- Tests for each element of AST --- //
+
     parseAll(page, """(Page: (Header: (Image:(misc/Logo_THM_MNI.png)), (Navbar: (Link: (Startseite), (index.html)), (Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html))), (Link: (Literaturempfehlungen), (literaturempfehlungen.html)), (Link: (Stundenplan), (stundenplan.html)) ) ),
                           (Body: (Text: (Headline 1: (Betriebssysteme)), (Headline 4: (Kurzbeschreibung:)), (Paragraph: (In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.)), (Headline 4: (Studiengang:)), (Paragraph: (Informatik B.Sc., Ingenieur-Informatik B.Sc.)), (Headline 4: (Nächste Veranstaltung:)), (Paragraph: (Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr)))),
                           (Footer: (Link: (Kontakt), (kontakt.html)), (Link: (Impressum), (impressum.html)))
@@ -125,6 +128,24 @@ object TestWebsiteParser extends WebsiteParser {
     }
     parseAll(input, "(Input: (Id: (fname)), (Placeholder: (Vorname)))") match {
       case Success(matched, _) => assert(matched.toHtml == "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+
+    // --- Test for semantic analysis --- //
+
+    // Tests whether the same number of tabledatas are given for each row. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+          |(Header:
+            |(Image:(misc/Logo_THM.png)),
+              |(Navbar: (Link: (Startseite), (index.html)))
+           |), (Body: (Table: (Tablerow: (Zeit), (Montag)),
+           |                  (Tablerow: (8:00-9:30))
+           |           )
+           |), (Footer: )
+        |)""".stripMargin) match {
+      case Success(matched, _) => matched.analyzeSemantics(true)
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
   }

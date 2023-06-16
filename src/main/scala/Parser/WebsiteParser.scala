@@ -1,11 +1,11 @@
 package Parser
 
 import scala.util.parsing.combinator._
-
 import Utils.Writer
 
 import java.io.File
 import scala.language.postfixOps
+import scala.sys.exit
 import scala.util.matching.Regex
 
 class WebsiteParser extends RegexParsers {
@@ -16,7 +16,7 @@ class WebsiteParser extends RegexParsers {
     }
 
   def page: Parser[Page] =
-    """\(Page: """.r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {
+    """\(Page:""".r ~ header ~ """,""" ~ body ~ """,""" ~ footer ~ """\)""".r ^^ {
       case s1 ~ hea ~ s2 ~ bod ~ s3 ~ foo ~ s4 => Page(hea, bod, foo)
     }
 
@@ -178,23 +178,36 @@ object WebsiteParser {
       sb.addString(sb.append(page), ",")
     }
 
-    def analyzeSemantics(): Unit = {
+    def analyzeSemantics(test: Boolean): Unit = {
+      var ex: Boolean = false
       for (page <- pages) {
         for (el <- page.body.bodyElements) {
           el match {
             case form: Form =>
               for (ele <- form.formEls) {
                 if (ele.label.toString != ele.formEl.id.toString) {
-                  throw new RuntimeException("Error: Label and Form Identifier must match!")
+                  println("Error: Label and Form Identifier must match!")
+                  ex = true
                 }
               }
-            case image: Image =>
-              if (!new File(image.identifier).exists()) {
-                throw new RuntimeException("Error: Given file path does not exist!")
+            case table: Table =>
+              var rs: Int = 0
+              var hs: Int = 0
+              for (heads <- table.tablerowhead.tableheads) {
+                  hs = hs+1
+              }
+              for (rows <- table.tablerowdatas) {
+                for (data <- rows.tabledatas) {
+                  rs = rs+1
+                }
+                if(hs != rs) println("Error: All table rows must have the same number as table columns!"); ex = true
               }
             case _ =>
           }
         }
+      }
+      if(ex && !test) {
+        exit(99)
       }
     }
 

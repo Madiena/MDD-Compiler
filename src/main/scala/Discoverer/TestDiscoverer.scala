@@ -28,10 +28,9 @@ object TestDiscoverer extends Discoverer {
     assert(s == "(Zeit)")
 
     // Test TableRowData
-   /* input = "<tr>\n<td>8:00-9:30</td>\n<td>Compilerbau Vorlesung</td>\n<td>frei</td>\n<td>Compilerbau: A&O</td>\n<td>frei</td>\n<td>frei</td>\n</tr>"
+    input = "<tr>\n<td>8:00-9:30</td>\n<td>Compilerbau Vorlesung</td>\n<td>frei</td>\n<td>Compilerbau: A&O</td>\n<td>frei</td>\n<td>frei</td>\n</tr>"
     s = discover().toString
     assert(s == "(Tablerow: (8:00-9:30), (Compilerbau Vorlesung), (frei), (Compilerbau: A&O), (frei), (frei))")
-  */
 
     // Test Tabledata
     input = "<td>8:00-9:30</td>\n"

@@ -2,6 +2,8 @@ package Discoverer
 
 import Parser.WebsiteParser._
 
+import java.util
+
 class Discoverer() {
   var input: String = ""
 
@@ -19,11 +21,11 @@ class Discoverer() {
     else if (input.contains("th")) {
       return discoverTablehead()
     } // TableRowData
-   /* else if (input.contains("tr")) {
-
+    else if (input.contains("tr")) {
+      return discoverTableRowData()
     } // TableData*/
     else if (input.contains("td")) {
-      return discoverTabledata()
+      return discoverTabledata(input)
     }
     ""
   }
@@ -100,11 +102,24 @@ class Discoverer() {
     tablehead
   }
 
-  def discoverTableRowData(): Unit = {
-
+  def discoverTableRowData(): String = {
+    var sub: String = input.replace(input, input.substring(5))
+    println(sub)
+    var end: String = "</tr>"
+    var tabledata: String = ""
+    var tabledatas: List[Tabledata] = List()
+    while(sub != end) {
+      while (sub.charAt(0) != '\n') {
+        tabledata = tabledata + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      var td: Tabledata = discoverTabledata(tabledata)
+      tabledatas = tabledatas ++ List(td)
+    }
+    sub
   }
 
-  def discoverTabledata(): Tabledata = {
+  def discoverTabledata(input: String): Tabledata = {
     var sub: String = input.replace(input, input.substring(4))
     var id: String = ""
     while (sub.charAt(0) != '<') {
