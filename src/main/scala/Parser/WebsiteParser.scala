@@ -347,75 +347,66 @@ object WebsiteParser {
   }
 
   case class UnorderedList(elements: List[ListElement]) extends BodyElement {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (el <- elements) {
-      sb.addString(sb.append("(" + el + ")"), ",")
       htmlBuilder.append(el.toHtml)
     }
 
     override def toHtml: String = "<div class=\"col-sm-8 text-left bg-content\">\n<ul>" + htmlBuilder.toString() + "</ul></div>\n"
 
-    override def toString: String = "(List unordered: " + sb.toString() + ")"
+    override def toString: String = "(List unordered: " + elements.mkString(", ") + ")"
   }
 
   case class OrderedList(elements: List[ListElement]) extends BodyElement {
-    private val sb = new StringBuilder();
     private val htmlBuilder = new StringBuilder()
     for (el <- elements) {
-      sb.addString(sb.append("(" + el + ")"), ",")
       htmlBuilder.append(el.toHtml)
     }
 
     override def toHtml: String = "<div class=\"col-sm-8 text-left bg-content\">\n<ol>" + htmlBuilder.toString() + "</ol></div>\n"
 
-    override def toString: String = "(List ordered: " + sb.toString() + ")"
+    override def toString: String = "(List ordered: " + elements.mkString(", ") + ")"
   }
 
   case class ListElement(identifier: String) {
     def toHtml: String = "<li>" + identifier + "</li>\n"
 
-    override def toString: String = identifier
+    override def toString: String = "(" + identifier + ")"
   }
 
   case class Table(tablerowhead: Tablerowhead, tablerowdatas: List[Tablerowdata]) extends BodyElement {
     private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (trd <- tablerowdatas) {
-      sb.addString(sb.append(trd), ",")
       htmlBuilder.append(trd.toHtml).append("\n")
     }
 
     override def toHtml: String = "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n" + tablerowhead.toHtml + "\n" + htmlBuilder.toString() + "</table>\n</div>\n"
 
-    override def toString: String = "(Table: " + tablerowhead + sb.toString() + ")"
+    override def toString: String = "(Table: " + tablerowhead + ", " + tablerowdatas.mkString(", ") + ")"
 
   }
 
   case class Tablerowdata(tabledatas: List[Tabledata]) {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
-    for (td <- tabledatas) {
-      sb.addString(sb.append("(" + td + ")"), ",")
+    for ( td <- tabledatas) {
       htmlBuilder.append(td.toHtml)
     }
 
     def toHtml: String = "<tr>\n" + htmlBuilder.toString() + "</tr>"
 
-    override def toString: String = "(Tablerow: " + sb.toString() + ")"
+    override def toString: String = "(Tablerow: " + tabledatas.mkString(", ") + ")"
   }
 
   case class Tablerowhead(tableheads: List[Tablehead]) {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (th <- tableheads) {
-      sb.addString(sb.append("(" + th + ")"), ",")
       htmlBuilder.append(th.toHtml)
     }
 
     def toHtml: String = "<thead>\n<tr>\n" + htmlBuilder.toString() + "</tr>\n</thead>"
 
-    override def toString: String = "(Tablerow: " + sb.toString() + ")"
+    override def toString: String = "(Tablerow: " + tableheads.mkString(", ") + ")"
   }
 
   case class Tablehead(identifier: String) {
