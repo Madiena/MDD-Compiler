@@ -337,7 +337,7 @@ object WebsiteParser {
   case class Headline(identifier: String, num: Int) extends TextEl {
     override def toHtml: String = "<h" + num.toString + ">" + identifier + "</h" + num.toString + ">\n"
 
-    override def toString: String = "(Headline: (" + identifier + "))"
+    override def toString: String = "(Headline " + num + ": (" + identifier + "))"
   }
 
   case class Paragraph(identifier: String) extends TextEl {

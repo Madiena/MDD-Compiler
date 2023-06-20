@@ -42,9 +42,16 @@ class Discoverer() {
     } // ListElement
     else if (input.contains("<li>")) {
       return discoverListElement(input)
-    } // Paragraph
+    } // Text
+    else if (input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<h") || input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<p")) {
+      return discoverText(input)
+    }
+    // Paragraph
     else if (input.contains("<p ")) {
       return discoverParagraph(input)
+    } // Headline
+    else if (input.contains("<h")) {
+      return discoverHeadline(input)
     }
     ""
   }
@@ -185,14 +192,14 @@ class Discoverer() {
       trhString = trhString + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
     }
-    for(i <- 1 to 7) {
+    for (i <- 1 to 7) {
       trhString = trhString + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
     }
     var tablerowhead: Tablerowhead = disvoverTableRowHead(trhString)
     var tablerowdata: String = ""
     var tableRowDatas: List[Tablerowdata] = List()
-    while(sub != tableEnd) {
+    while (sub != tableEnd) {
       if (sub.charAt(0) == '\n') {
         sub = sub.replace(sub, sub.substring(1))
       }
@@ -200,7 +207,7 @@ class Discoverer() {
         tablerowdata = tablerowdata + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
-      for(i <- 1 to 5) {
+      for (i <- 1 to 5) {
         tablerowdata = tablerowdata + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
@@ -281,6 +288,59 @@ class Discoverer() {
     val paragraph: Paragraph = Paragraph(id)
     println(paragraph + "\n")
     paragraph
+  }
+
+  def discoverHeadline(input: String): Headline = {
+    var sub: String = input.replace(input, input.substring(2))
+    var num: Char = sub.charAt(0)
+    sub = sub.replace(sub, sub.substring(2))
+    var id: String = ""
+    while (sub.charAt(0) != '<') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val headline: Headline = Headline(id, num.asDigit)
+    println(headline + "\n")
+    headline
+  }
+
+  def discoverText(input: String): Text = {
+    var sub: String = input.replace(input, input.substring(124))
+    var headline: String = ""
+    var paragraph: String = ""
+    var textEls: List[TextEl] = List()
+    val end: String = "</div>\n</div>\n"
+    while (sub != end) {
+      if (sub.charAt(0) == '\n') {
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      if (sub.charAt(1) == 'h') {
+        headline = headline + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        while (sub.charAt(0) != '\n') {
+          headline = headline + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        headline = headline + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        var hl: Headline = discoverHeadline(headline)
+        textEls = textEls ++ List(hl)
+      } else if (sub.charAt(1) == 'p') {
+        paragraph = paragraph + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        while (sub.charAt(0) != '\n') {
+          paragraph = paragraph + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        paragraph = paragraph + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        var pg: Paragraph = discoverParagraph(paragraph)
+        textEls = textEls ++ List(pg)
+      }
+    }
+    val text: Text = Text(textEls)
+    println(text)
+    text
   }
 
 }
