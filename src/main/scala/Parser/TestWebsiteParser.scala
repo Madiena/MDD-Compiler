@@ -145,7 +145,31 @@ object TestWebsiteParser extends WebsiteParser {
            |           )
            |), (Footer: )
         |)""".stripMargin) match {
-      case Success(matched, _) => matched.analyzeSemantics(true)
+      case Success(matched, _) => assert(matched.analyzeSemantics(true) == "Error: All table rows must have the same number as table columns!")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+
+    // Tests if navbar has too many elements. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+         |(Header:
+            |(Image:(misc/Logo_THM.png)),
+               |(Navbar:  (Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))
+               |(Link: (Startseite), (index.html))),
+         |), (Body: ),
+         |(Footer: )
+        |)""".stripMargin) match {
+      case Success(matched, _) => println(matched.analyzeSemantics(true))
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
   }

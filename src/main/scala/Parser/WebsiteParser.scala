@@ -178,16 +178,21 @@ object WebsiteParser {
       sb.addString(sb.append(page), ",")
     }
 
-    def analyzeSemantics(test: Boolean): Unit = {
-      var ex: Boolean = false
+    def analyzeSemantics(test: Boolean): Any = {
+      var failure: String = ""
       for (page <- pages) {
         for (el <- page.body.bodyElements) {
           el match {
             case form: Form =>
               for (ele <- form.formEls) {
                 if (ele.label.toString != ele.formEl.id.toString) {
-                  println("Error: Label and Form Identifier must match!")
-                  ex = true
+                  failure = "Error: Label and Form Identifier must match!"
+                  if (!test) {
+                    println(failure)
+                    exit(99)
+                  } else {
+                    return failure
+                  }
                 }
               }
             case table: Table =>
@@ -200,14 +205,26 @@ object WebsiteParser {
                 for (data <- rows.tabledatas) {
                   rs = rs+1
                 }
-                if(hs != rs) println("Error: All table rows must have the same number as table columns!"); ex = true
+                if(hs != rs) failure = "Error: All table rows must have the same number as table columns!"
+                if (!test) {
+                  println(failure)
+                  exit(99)
+                } else {
+                  return failure
+                }
               }
             case _ =>
           }
+          if (page.header.navbar.elements.length > 10) {
+            failure =  "Error: To provide an optimal overview, the navbar may only contain 10 elements or less."
+            if (!test) {
+              println(failure)
+              exit(99)
+            } else {
+              return failure
+            }
+          }
         }
-      }
-      if(ex && !test) {
-        exit(99)
       }
     }
 
