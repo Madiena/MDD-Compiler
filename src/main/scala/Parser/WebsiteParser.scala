@@ -321,30 +321,26 @@ object WebsiteParser {
   }
 
   case class NavbarList(id: String, links: List[NavLink]) extends NavbarElement {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (link <- links) {
-      sb.addString(sb.append(link), ",")
       htmlBuilder.append(link.toHtml)
     }
 
     override def toHtml: String = "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">" + id +
       "\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n" + htmlBuilder.toString() + "</ul>\n</li>\n"
 
-    override def toString: String = "(Dropdown: (" + id + ")," + sb.toString() + ")"
+    override def toString: String = "(Dropdown: (" + id + "), " + links.mkString(", ") + ")"
   }
 
   case class Text(textel: List[TextEl]) extends BodyElement {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (el <- textel) {
-      sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
 
     override def toHtml: String = "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n" + htmlBuilder.toString() + "</div>\n</div>\n"
 
-    override def toString: String = "(Text: " + sb.toString() + ")"
+    override def toString: String = "(Text: " + textel.mkString(", ") + ")"
   }
 
   sealed abstract class TextEl() {

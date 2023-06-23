@@ -35,11 +35,17 @@ class Discoverer() {
     } // UnoreredList
     else if (input.contains("<ul>")) {
       return discoverUnorderedList(input)
-    }
-    // OrderedList
+    } // OrderedList
     else if (input.contains("<ol>")) {
       return discoverOrderedList(input)
-    } // ListElement
+    } // Navbarlist
+    else if (input.contains("<li class=")) {
+      return discoverNavbarlist(input)
+    } // Navlink
+    else if (input.contains("<li><a href")) {
+      return discoverNavlink(input)
+    }
+    // ListElement
     else if (input.contains("<li>")) {
       return discoverListElement(input)
     } // Text
@@ -52,6 +58,12 @@ class Discoverer() {
     } // Headline
     else if (input.contains("<h")) {
       return discoverHeadline(input)
+    } // Link
+    else if (input.contains("<a href")) {
+      return discoverLink(input)
+    } // Navbar
+    else if (input.contains("<nav class=")) {
+      return discoverNavbar(input)
     }
     ""
   }
@@ -339,8 +351,84 @@ class Discoverer() {
       }
     }
     val text: Text = Text(textEls)
-    println(text)
+    println(text + "\n")
     text
+  }
+
+  def discoverLink(intput: String): Link = {
+    var sub: String = input.replace(input, input.substring(9))
+    var destination: String = ""
+    var identifier: String = ""
+    while (sub.charAt(0) != '"') {
+      destination = destination + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(2))
+    while (sub.charAt(0) != '<') {
+      identifier = identifier + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val des: Destination = Destination(destination)
+    val id: LinkIdentifier = LinkIdentifier(identifier)
+    val link: Link = Link(des, id)
+    println(link + "\n")
+    link
+  }
+
+  def discoverNavlink(input: String): NavLink = {
+    var sub: String = input.replace(input, input.substring(13))
+    var destination: String = ""
+    var identifier: String = ""
+    while (sub.charAt(0) != '"') {
+      destination = destination + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(2))
+    while (sub.charAt(0) != '<') {
+      identifier = identifier + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val des: Destination = Destination(destination)
+    val id: LinkIdentifier = LinkIdentifier(identifier)
+    val link: NavLink = NavLink(des, id)
+    println(link + "\n")
+    link
+  }
+
+  def discoverNavbarlist(input: String): NavbarList = {
+    var sub: String = input.replace(input, input.substring(72))
+    var id: String = ""
+    val end: String = "</ul>\n</li>\n"
+    var navlink: String = ""
+    var navlinks: List[NavLink] = List()
+    while (sub.charAt(0) != '\n') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(60))
+    while (sub != end) {
+      if (sub.charAt(0) == '\n') {
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      while (sub.charAt(0) != '\n') {
+        navlink = navlink + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      navlink = navlink + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+      var nl: NavLink = discoverNavlink(navlink)
+      navlinks = navlinks ++ List(nl)
+      navlink = ""
+    }
+    val navbarList: NavbarList = NavbarList(id, navlinks)
+    println(navbarList + "\n")
+    navbarList
+  }
+
+  def discoverNavbar(input: String): String = {
+    var sub: String = input.replace(input, input.substring(135))
+    println(sub)
+    ""
   }
 
 }
