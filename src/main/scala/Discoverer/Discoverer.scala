@@ -11,6 +11,9 @@ class Discoverer() {
     // Input
     if (input.contains("<input")) {
       return discoverInput(input)
+    } // Header
+    else if (input.contains("<header>")) {
+      return discoverHeader(input)
     } // Body
     else if (input.contains("<body>")) {
       return discoverBody(input)
@@ -601,7 +604,7 @@ class Discoverer() {
           table = table + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        for(i <- 0 to 15) {
+        for (i <- 0 to 15) {
           table = table + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
@@ -612,6 +615,28 @@ class Discoverer() {
     val body: Body = Body(bodyElements)
     println(body + "\n")
     body
+  }
+
+  def discoverHeader(input: String): Header = {
+    var sub: String = input.replace(input, input.substring(67))
+    var image: String = ""
+    image = image + sub.charAt(0)
+    sub = sub.replace(sub, sub.substring(1))
+    while (sub.charAt(0) != '<') {
+      image = image + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    sub = sub.replace(sub, sub.substring(14))
+    val img: Image = discoverImage(image)
+    var navbar: String = ""
+    while (!sub.startsWith("</header>\n")) {
+      navbar = navbar + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val nav: Navbar = discoverNavbar(navbar)
+    val header: Header = Header(img, nav)
+    println(header + "\n")
+    header
   }
 
 }
