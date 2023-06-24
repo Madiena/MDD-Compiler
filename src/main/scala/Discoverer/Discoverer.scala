@@ -12,7 +12,7 @@ class Discoverer() {
     if (input.contains("<input")) {
       return discoverInput(input)
     } // Body
-    else if(input.contains("<body>")) {
+    else if (input.contains("<body>")) {
       return discoverBody(input)
     }
     // Footer
@@ -259,7 +259,6 @@ class Discoverer() {
     val end: String = "\n</ol></div>\n"
     var listElement: String = ""
     var list: List[ListElement] = List()
-    println(sub)
     while (sub != end) {
       if (sub.charAt(0) == '\n') {
         sub = sub.replace(sub, sub.substring(1))
@@ -282,7 +281,6 @@ class Discoverer() {
     val end: String = "\n</ul></div>\n"
     var listElement: String = ""
     var list: List[ListElement] = List()
-    println(sub)
     while (sub != end) {
       if (sub.charAt(0) == '\n') {
         sub = sub.replace(sub, sub.substring(1))
@@ -359,6 +357,8 @@ class Discoverer() {
         var pg: Paragraph = discoverParagraph(paragraph)
         textEls = textEls ++ List(pg)
       }
+      headline = ""
+      paragraph = ""
     }
     val text: Text = Text(textEls)
     println(text + "\n")
@@ -507,8 +507,8 @@ class Discoverer() {
     var link: String = ""
     var links: List[Link] = List()
     var end: String = "\n</footer>\n"
-    while(sub != end) {
-      while(!sub.startsWith("</li>")) {
+    while (sub != end) {
+      while (!sub.startsWith("</li>")) {
         link = link + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
@@ -520,6 +520,98 @@ class Discoverer() {
     val footer: Footer = Footer(links)
     println(footer + "\n")
     footer
+  }
+
+  def discoverBody(input: String): Body = {
+    var sub: String = input.replace(input, input.substring(7))
+    var bodyElements: List[BodyElement] = List()
+    var end: String = "</body>\n"
+
+    while (sub != end) {
+      // image
+      if (sub.startsWith("<img")) {
+        var image: String = ""
+        while (sub.charAt(0) != '\n') {
+          image = image + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        image = image + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        var img: Image = discoverImage(image)
+        bodyElements = bodyElements ++ List(img)
+      }
+      // link
+      if (sub.startsWith("<a href")) {
+        var link: String = ""
+        while (sub.charAt(0) != '\n') {
+          link = link + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        link = link + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        var l: Link = discoverLink(link)
+        bodyElements = bodyElements ++ List(l)
+      }
+      // text elements
+      if (sub.startsWith("<div class=\"container-fluid text-center")) {
+        var textEl: String = ""
+        while (!sub.startsWith("</div>\n</div>\n")) {
+          textEl = textEl + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        for (i <- 0 to 13) {
+          textEl = textEl + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        var te: Text = discoverText(textEl)
+        bodyElements = bodyElements ++ List(te)
+      }
+      // unordered list
+      if (sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ul>")) {
+        var list: String = ""
+        while (!sub.startsWith("</ul></div>\n")) {
+          list = list + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        for (i <- 0 to 11) {
+          list = list + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        var unorderedList: UnorderedList = discoverUnorderedList(list)
+        bodyElements = bodyElements ++ List(unorderedList)
+      }
+      // ordered list
+      if (sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ol>")) {
+        var list: String = ""
+        while (!sub.startsWith("</ol></div>\n")) {
+          list = list + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        for (i <- 0 to 11) {
+          list = list + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        var orderedList: OrderedList = discoverOrderedList(list)
+        bodyElements = bodyElements ++ List(orderedList)
+      }
+      // table
+      if (sub.startsWith("<div class=\"col-sm-10 text-center bg-content\">\n<table class=")) {
+        var table: String = ""
+        while (!sub.startsWith("</table>\n</div>\n")) {
+          table = table + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        for(i <- 0 to 15) {
+          table = table + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        var t: Table = discoverTable(table)
+        bodyElements = bodyElements ++ List(t)
+      }
+    }
+    val body: Body = Body(bodyElements)
+    println(body + "\n")
+    body
   }
 
 }

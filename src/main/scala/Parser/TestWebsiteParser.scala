@@ -131,6 +131,18 @@ object TestWebsiteParser extends WebsiteParser {
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
 
+
+
+
+    parseAll(body, "(Body: (List unordered: (Ice Cream), (Cheese), (Rhubarb)), (List ordered: (Basil), (Avocado), (Lime)))") match {
+      case Success(matched, _) => println(matched.toHtml)
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
+
+
+
+
+
     // --- Test for semantic analysis --- //
 
     // Tests whether the same number of tabledatas are given for each row. This test is supposed to fail.

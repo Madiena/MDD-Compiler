@@ -252,16 +252,14 @@ object WebsiteParser {
   }
 
   case class Body(bodyElements: List[BodyElement]) {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (el <- bodyElements) {
-      sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
 
     def toHtml: String = "<body>\n" + htmlBuilder.toString() + "</body>\n"
 
-    override def toString: String = "(Body: " + sb.toString() + ")"
+    override def toString: String = "(Body: " + bodyElements.mkString(", ") + ")"
   }
 
   sealed abstract class BodyElement() {
