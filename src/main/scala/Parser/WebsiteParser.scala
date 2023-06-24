@@ -169,7 +169,7 @@ object WebsiteParser {
   case class Image(identifier: String) extends BodyElement {
     override def toHtml: String = "<img src=\"" + identifier + "\">\n"
 
-    override def toString: String = "<img src=\"" + identifier + "\">"
+    override def toString: String = "(Image:(" + identifier + "))"
   }
 
   case class Website(pages: List[Page]) {
@@ -269,31 +269,27 @@ object WebsiteParser {
   }
 
   case class Footer(links: List[Link]) {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (link <- links) {
-      sb.addString(sb.append(link), ",")
       htmlBuilder.append("<li>\n").append(link.toHtml).append("</li>")
     }
 
     def toHtml: String = "<footer class=\"container-fluid text-center\">\n<ul>\n" + htmlBuilder.toString() +
       "</ul>\n</footer>\n"
 
-    override def toString: String = "(Footer: " + sb.toString() + ")"
+    override def toString: String = "(Footer: " + links.mkString(", ") + ")"
   }
 
   case class Navbar(elements: List[NavbarElement]) {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (el <- elements) {
-      sb.addString(sb.append(el), ",")
       htmlBuilder.append(el.toHtml)
     }
 
     def toHtml: String = "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n" +
       "<ul class=\"nav navbar-nav\">\n" + htmlBuilder.toString() + "</ul>\n</div>\n</div>\n</nav>\n"
 
-    override def toString: String = "(Navbar: " + sb.toString() + ")"
+    override def toString: String = "(Navbar: " + elements.mkString(", ") + ")"
   }
 
   sealed abstract class NavbarElement() {

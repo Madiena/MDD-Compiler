@@ -11,6 +11,16 @@ class Discoverer() {
     // Input
     if (input.contains("<input")) {
       return discoverInput(input)
+    } // Body
+    else if(input.contains("<body>")) {
+      return discoverBody(input)
+    }
+    // Footer
+    else if (input.contains("<footer ")) {
+      return discoverFooter(input)
+    } // Navbar
+    else if (input.contains("<nav class=")) {
+      return discoverNavbar(input)
     } // TextArea
     else if (input.contains("<textarea")) {
       return discoverTextarea(input)
@@ -61,9 +71,9 @@ class Discoverer() {
     } // Link
     else if (input.contains("<a href")) {
       return discoverLink(input)
-    } // Navbar
-    else if (input.contains("<nav class=")) {
-      return discoverNavbar(input)
+    } // Image
+    else if (input.contains("<img ")) {
+      return discoverImage(input)
     }
     ""
   }
@@ -355,7 +365,7 @@ class Discoverer() {
     text
   }
 
-  def discoverLink(intput: String): Link = {
+  def discoverLink(input: String): Link = {
     var sub: String = input.replace(input, input.substring(9))
     var destination: String = ""
     var identifier: String = ""
@@ -425,10 +435,91 @@ class Discoverer() {
     navbarList
   }
 
-  def discoverNavbar(input: String): String = {
-    var sub: String = input.replace(input, input.substring(135))
-    println(sub)
-    ""
+  def discoverNavbar(input: String): Navbar = {
+    var sub: String = input.replace(input, input.substring(126))
+    val end: String = "</ul>\n</div>\n</div>\n</nav>\n"
+    var navbarList: String = ""
+    var navLink: String = ""
+    var both: String = ""
+    var navellist: List[NavbarElement] = List()
+    while (sub != end) {
+      if (sub.charAt(0) == '\n') {
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      for (i <- 0 to 2) {
+        both = both + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      if (sub.charAt(0) == '>') {
+        navLink = both
+      } else {
+        navbarList = both
+      }
+      while (sub.charAt(0) != '\n') {
+        if (navLink.nonEmpty) {
+          navLink = navLink + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        } else {
+          navbarList = navbarList + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+      }
+      if (navLink.nonEmpty) {
+        navLink = navLink + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        var nl: NavLink = discoverNavlink(navLink)
+        navellist = navellist ++ List(nl)
+      } else {
+        while (!sub.startsWith("</li>\n</ul>\n</li>\n")) {
+          navbarList = navbarList + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        for (i <- 1 to 18) {
+          navbarList = navbarList + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        var nlist: NavbarList = discoverNavbarlist(navbarList)
+        navellist = navellist ++ List(nlist)
+      }
+      navbarList = ""
+      navLink = ""
+      both = ""
+    }
+    var navbar: Navbar = Navbar(navellist)
+    println(navbar + "\n")
+    navbar
+  }
+
+  def discoverImage(input: String): Image = {
+    var sub: String = input.replace(input, input.substring(10))
+    var id: String = ""
+    while (sub.charAt(0) != '"') {
+      id = id + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val image: Image = Image(id)
+    println(image + "\n")
+    image
+  }
+
+  def discoverFooter(input: String): Footer = {
+    var sub: String = input.replace(input, input.substring(55))
+    var link: String = ""
+    var links: List[Link] = List()
+    var end: String = "\n</footer>\n"
+    while(sub != end) {
+      while(!sub.startsWith("</li>")) {
+        link = link + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      sub = sub.replace(sub, sub.substring(10))
+      var l: Link = discoverLink(link)
+      links = links ++ List(l)
+      link = ""
+    }
+    val footer: Footer = Footer(links)
+    println(footer + "\n")
+    footer
   }
 
 }
