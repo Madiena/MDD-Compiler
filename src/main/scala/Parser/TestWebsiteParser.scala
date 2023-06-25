@@ -110,13 +110,47 @@ object TestWebsiteParser extends WebsiteParser {
       case Success(matched, _) => assert(matched.toHtml == "<th class=\"text-center\">Zeit</th>\n")
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
+    parseAll(formEl, "(Input: (Id: (fname)), (Placeholder: (Vorname)))") match {
+      case Success(matched, _) => println(matched)
+      case Failure(msg, _) => println("Neee, das war nix, formel weil: " + msg)
+    }
+    parseAll(formEl, "(Textarea: (Id: (fname)), (Placeholder: (Vorname)))") match {
+      case Success(matched, _) => println(matched)
+      case Failure(msg, _) => println("Neee, das war nix, formel weil: " + msg)
+    }
     parseAll(form, "(Form: " +
-      "((Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname))))," +
-      "((Label: (Id: (lname)), (Vorname)), (Input: (Id: (lname)), (Placeholder: (Nachname))))," +
-      "((Textarea: (Id: (subject)), (Placeholder: (Nachricht))))" +
+      "(Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname)))" +
+      ")") match {
+      case Success(matched, _) => println(matched)
+      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+    }
+    parseAll(form, "(Form: " +
+      "(Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname)))," +
+      "(Label: (Id: (lname)), (Vorname)), (Input: (Id: (lname)), (Placeholder: (Nachname)))" +
+      ")") match {
+      case Success(matched, _) => println(matched)
+      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+    }
+    parseAll(form, "(Form: " +
+      "(Label: (Id: (fname)), (Vorname)), (Textarea: (Id: (fname)), (Placeholder: (Vorname)))," +
+      "(Label: (Id: (lname)), (Vorname)), (Textarea: (Id: (lname)), (Placeholder: (Nachname)))" +
+      ")") match {
+      case Success(matched, _) => println(matched)
+      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+    }
+    parseAll(form, "(Form: " +
+      "(Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname)))," +
+      "(Label: (Id: (subject)), (Textarea: (Id: (subject)), (Placeholder: (Nachricht)))" +
       ")") match {
       case Success(matched, _) => println(matched.toHtml)
-      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+    }
+    parseAll(form, "(Form: " +
+      "(Label: (Id: (fname)), (Vorname)), (Textarea: (Id: (fname)), (Placeholder: (Vorname)))," +
+      "(Label: (Id: (subject)), (Input: (Id: (subject)), (Placeholder: (Nachricht)))" +
+      ")") match {
+      case Success(matched, _) => println(matched.toHtml)
+      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
     }
     parseAll(label, "(Label: (Id: (fname)), (Vorname:))") match {
       case Success(matched, _) => assert(matched.toHtml == "<label for=\"fname\">Vorname:</label>\n")

@@ -121,12 +121,12 @@ class WebsiteParser extends RegexParsers {
     }
 
   def form: Parser[BodyElement] =
-    """\(Form:""".r ~ repsep(formEl, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
+    """\(Form:""".r ~ repsep(formElWLabel, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
-  def formEl: Parser[FormEl] =
-    """\(""".r ~ label ~ """,""".r ~ (input | textArea) ~ """\)""".r ^^ {
-      case s1 ~ la ~ s2 ~ el ~ s3 => FormEl(la, el);
-    }
+  def formElWLabel: Parser[FormEl] = label ~ """,""".r ~ formEl ^^ {
+    case la ~ s ~ el => FormEl(la, el)
+  }
+  def formEl: Parser[FormElEl] = input | textArea
 
   def label: Parser[Label] = """\(Label:""".r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
 
