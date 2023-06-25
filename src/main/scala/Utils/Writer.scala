@@ -3,8 +3,7 @@ package Utils
 import java.io.{File, PrintWriter}
 
 class Writer {
-  def writeFile(content: String): Unit = {
-    var nr = 1
+  def writeFile(content: String, nr: Int): Unit = {
     val file: File = new File("file" + nr + ".html")
     if (!file.createNewFile()) {
       throw new RuntimeException("Creating new file didn't work!")

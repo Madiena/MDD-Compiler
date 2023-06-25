@@ -1,13 +1,21 @@
 package Discoverer
 
 import Parser.WebsiteParser._
+import Utils.Reader
 
 import java.util
 
 class Discoverer() {
   var input: String = ""
 
-  def discover(): Object = {
+  def discoverWebsite(): String = {
+    var reader: Reader = new Reader()
+    input = reader.readFile()
+    discoverPage(input)
+    ""
+  }
+
+  def discover(input: String): Object = {
     // Page
     if (input.contains("<!DOCTYPE html>")) {
       return discoverPage(input)

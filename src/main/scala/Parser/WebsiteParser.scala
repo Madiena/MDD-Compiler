@@ -230,9 +230,11 @@ object WebsiteParser {
 
     def buildWebsite(): Unit = {
       var writer: Writer = new Writer()
+      var nr = 1
       analyzeSemantics(false)
       for (page <- pages) {
-        writer.writeFile(page.toHtml)
+        writer.writeFile(page.toHtml, nr)
+        nr += 1
       }
     }
 

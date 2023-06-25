@@ -228,6 +228,21 @@ object TestWebsiteParser extends WebsiteParser {
         |(Link: (Startseite), (index.html)))),
         | (Body: ),
         |(Footer: )
+        |),(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar:  (Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)))),
+        | (Body: ),
+        |(Footer: )
         |)""".stripMargin) match {
       case Success(matched, _) => println(matched.buildWebsite())
         assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.")

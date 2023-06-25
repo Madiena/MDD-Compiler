@@ -1,10 +1,22 @@
 package Utils
 
-import scala.io.Source
+import java.io.File
+import scala.io.{BufferedSource, Source}
 
 class Reader {
-  def readFile(): Unit = {
-    val readText = Source.fromFile("src/readThis.txt").getLines.toList
-    println(readText.mkString(" "))
+  def readFile(): String = {
+    var file: BufferedSource = null
+    var num = 1
+    var input: String = ""
+    while (new File("file" + num + ".html").exists()) {
+      file = Source.fromFile("file" + num + ".html")
+      for (line <- file.getLines()) {
+        input = input + "\n" + line
+      }
+      file.close()
+      num += 1
+    }
+    input = input.substring(0, input.length)
+    input
   }
 }
