@@ -173,11 +173,6 @@ object WebsiteParser {
   }
 
   case class Website(pages: List[Page]) {
-    private val sb = new StringBuilder()
-    for (page <- pages) {
-      sb.addString(sb.append(page), ",")
-    }
-
     def analyzeSemantics(test: Boolean): Any = {
       var failure: String = ""
       for (page <- pages) {
@@ -215,14 +210,14 @@ object WebsiteParser {
               }
             case _ =>
           }
-          if (page.header.navbar.elements.length > 10) {
-            failure =  "Error: To provide an optimal overview, the navbar may only contain 10 elements or less."
-            if (!test) {
-              println(failure)
-              exit(99)
-            } else {
-              return failure
-            }
+        }
+        if (page.header.navbar.elements.length > 10) {
+          failure = "Error: To provide an optimal overview, the navbar may only contain 10 elements or less."
+          if (!test) {
+            println(failure)
+            exit(99)
+          } else {
+            return failure
           }
         }
       }
@@ -235,7 +230,7 @@ object WebsiteParser {
       }
     }
 
-    override def toString: String = "Website: (" + sb.toString() + ")"
+    override def toString: String = "Website: " + pages.mkString(", ")
   }
 
   case class Page(header: Header, body: Body, footer: Footer) {

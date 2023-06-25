@@ -146,7 +146,8 @@ object TestWebsiteParser extends WebsiteParser {
            |           )
            |), (Footer: )
         |)""".stripMargin) match {
-      case Success(matched, _) => assert(matched.analyzeSemantics(true) == "Error: All table rows must have the same number as table columns!")
+      case Success(matched, _) => println(matched.analyzeSemantics(true))
+        assert(matched.analyzeSemantics(true) == "Error: All table rows must have the same number as table columns!")
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
 
@@ -158,19 +159,20 @@ object TestWebsiteParser extends WebsiteParser {
             |(Image:(misc/Logo_THM.png)),
                |(Navbar:  (Link: (Startseite), (index.html)),
                |(Link: (Startseite), (index.html)),
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))
-               |(Link: (Startseite), (index.html))),
-         |), (Body: ),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)),
+               |(Link: (Startseite), (index.html)))),
+          | (Body: ),
          |(Footer: )
         |)""".stripMargin) match {
       case Success(matched, _) => println(matched.analyzeSemantics(true))
+        assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.")
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
   }
