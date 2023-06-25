@@ -242,7 +242,7 @@ object WebsiteParser {
     def toHtml: String = "<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"misc/bootstrap.css\">\n<link rel=\"stylesheet\" href=\"misc/my.css\">\n<script src=\"misc/jquery.js\"></script>\n<script src=\"misc/bootstrap.js\"></script>\n</head>\n" +
       header.toHtml + body.toHtml + footer.toHtml + "</html>"
 
-    override def toString: String = "Page: " + header.toString() + ", " + body.toString() + ", " + footer.toString() + ")"
+    override def toString: String = "(Page: " + header.toString() + ", " + body.toString() + ", " + footer.toString() + ")"
   }
 
   case class Header(image: Image, navbar: Navbar) {
@@ -476,7 +476,6 @@ object WebsiteParser {
   }
   case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
     override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"" + id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
-
     override def toString: String = "(Input: (Id: (" + id + ")), (Placeholder: (" + placeholder.toString + ")))"
 
   }

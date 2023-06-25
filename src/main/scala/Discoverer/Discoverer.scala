@@ -8,19 +8,21 @@ class Discoverer() {
   var input: String = ""
 
   def discover(): Object = {
-    // Input
-    if (input.contains("<input")) {
-      return discoverInput(input)
+    // Page
+    if (input.contains("<!DOCTYPE html>")) {
+      return discoverPage(input)
     } // Header
     else if (input.contains("<header>")) {
       return discoverHeader(input)
     } // Body
     else if (input.contains("<body>")) {
       return discoverBody(input)
-    }
-    // Footer
+    } // Footer
     else if (input.contains("<footer ")) {
       return discoverFooter(input)
+    } // Input
+    else if (input.contains("<input")) {
+      return discoverInput(input)
     } // Navbar
     else if (input.contains("<nav class=")) {
       return discoverNavbar(input)
@@ -57,8 +59,7 @@ class Discoverer() {
     } // Navlink
     else if (input.contains("<li><a href")) {
       return discoverNavlink(input)
-    }
-    // ListElement
+    } // ListElement
     else if (input.contains("<li>")) {
       return discoverListElement(input)
     } // Text
@@ -637,6 +638,39 @@ class Discoverer() {
     val header: Header = Header(img, nav)
     println(header + "\n")
     header
+  }
+
+  def discoverPage(input: String): Page = {
+    var sub: String = input.replace(input, input.substring(313))
+    var header: String = ""
+    var body: String = ""
+    var footer: String = ""
+    while (!sub.startsWith("</header>\n")) {
+      header = header + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    for (i <- 0 to 9) {
+      header = header + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val h: Header = discoverHeader(header)
+    while (!sub.startsWith("</body>\n")) {
+      body = body + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    for (i <- 0 to 7) {
+      body = body + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val b: Body = discoverBody(body)
+    while (sub != "</html>") {
+      footer = footer + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val f: Footer = discoverFooter(footer)
+    val page: Page = Page(h, b, f)
+    println(page + "\n")
+    page
   }
 
 }
