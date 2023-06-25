@@ -9,7 +9,9 @@ import scala.sys.exit
 import scala.util.matching.Regex
 
 class WebsiteParser extends RegexParsers {
+
   import WebsiteParser._
+
   def website: Parser[Website] =
     """Website:""" ~ repsep(page, ",") ^^ {
       case s1 ~ p => Website(p);
@@ -39,7 +41,7 @@ class WebsiteParser extends RegexParsers {
 
   def image: Parser[Image] =
     """\(Image:\(""".r ~ imageIdentifier ~ ("""[.]jpg""".r | """[.]png""".r) ~ """\)\)""".r ^^ {
-      case s1 ~ id ~ s2 ~ s3 => Image(id+s2)
+      case s1 ~ id ~ s2 ~ s3 => Image(id + s2)
     }
 
   def navbar: Parser[Navbar] =
@@ -126,6 +128,7 @@ class WebsiteParser extends RegexParsers {
   def formElWLabel: Parser[FormEl] = label ~ """,""".r ~ formEl ^^ {
     case la ~ s ~ el => FormEl(la, el)
   }
+
   def formEl: Parser[FormElEl] = input | textArea
 
   def label: Parser[Label] = """\(Label:""".r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
@@ -152,8 +155,10 @@ class WebsiteParser extends RegexParsers {
     """[1-4]""".r ^^ {
       _.toInt
     }
+
   private def imageIdentifier: Parser[String] =
-  """(([/\-!:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
+    """(([/\-!:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
+
   private def identifier: Parser[String] =
     """(([/\-!.:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
 
@@ -194,13 +199,13 @@ object WebsiteParser {
               var rs: Int = 0
               var hs: Int = 0
               for (heads <- table.tablerowhead.tableheads) {
-                  hs = hs+1
+                hs = hs + 1
               }
               for (rows <- table.tablerowdatas) {
                 for (data <- rows.tabledatas) {
-                  rs = rs+1
+                  rs = rs + 1
                 }
-                if(hs != rs) failure = "Error: All table rows must have the same number as table columns!"
+                if (hs != rs) failure = "Error: All table rows must have the same number as table columns!"
                 if (!test) {
                   println(failure)
                   exit(99)
@@ -224,7 +229,8 @@ object WebsiteParser {
     }
 
     def buildWebsite(): Unit = {
-      var writer: Writer = new Writer();
+      var writer: Writer = new Writer()
+      analyzeSemantics(false)
       for (page <- pages) {
         writer.writeFile(page.toHtml)
       }
@@ -391,7 +397,7 @@ object WebsiteParser {
 
   case class Tablerowdata(tabledatas: List[Tabledata]) {
     private val htmlBuilder = new StringBuilder()
-    for ( td <- tabledatas) {
+    for (td <- tabledatas) {
       htmlBuilder.append(td.toHtml)
     }
 
@@ -452,7 +458,7 @@ object WebsiteParser {
   case class Label(id: FormIdentifier, identifier: String) {
     def toHtml: String = "<label for=\"" + id + "\">" + identifier + "</label>\n"
 
-    override def toString: String = "(Label: (Id: (" +  id.toString() + ")), (" + identifier + "))"
+    override def toString: String = "(Label: (Id: (" + id.toString() + ")), (" + identifier + "))"
   }
 
   case class TextArea(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
@@ -469,8 +475,10 @@ object WebsiteParser {
   case class FormIdentifier(id: String) {
     override def toString: String = id
   }
+
   case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
     override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"" + id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
+
     override def toString: String = "(Input: (Id: (" + id + ")), (Placeholder: (" + placeholder.toString + ")))"
 
   }

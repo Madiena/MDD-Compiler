@@ -209,5 +209,29 @@ object TestWebsiteParser extends WebsiteParser {
         assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.")
       case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
     }
+
+
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar:  (Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)),
+        |(Link: (Startseite), (index.html)))),
+        | (Body: ),
+        |(Footer: )
+        |)""".stripMargin) match {
+      case Success(matched, _) => println(matched.buildWebsite())
+        assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.")
+      case Failure(msg, _) => println("Neee, das war nix, weil: " + msg)
+    }
   }
 }
