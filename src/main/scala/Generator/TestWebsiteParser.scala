@@ -1,4 +1,4 @@
-package Parser
+package Generator
 
 object TestWebsiteParser extends WebsiteParser {
   def main(args: Array[String]): Unit = {
@@ -140,10 +140,12 @@ object TestWebsiteParser extends WebsiteParser {
     }
     parseAll(form, "(Form: " +
       "(Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname)))," +
-      "(Label: (Id: (subject)), (Textarea: (Id: (subject)), (Placeholder: (Nachricht)))" +
+      "(Label: (Id: (subject)), (Vorname)),  (Textarea: (Id: (subject)), (Placeholder: (Nachricht)))" +
       ")") match {
-      case Success(matched, _) => println(matched.toHtml)
-      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+      case Success(matched, _) => println(matched)
+      case f@Failure(msg, _) =>
+        println(f)
+        println("Neee, war nix, weil: " + msg)
     }
     parseAll(form, "(Form: " +
       "(Label: (Id: (fname)), (Vorname)), (Textarea: (Id: (fname)), (Placeholder: (Vorname)))," +

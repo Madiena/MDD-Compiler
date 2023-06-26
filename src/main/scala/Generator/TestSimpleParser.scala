@@ -1,4 +1,4 @@
-package Parser
+package Generator
 
 object TestSimpleParser extends SimpleParser {
 

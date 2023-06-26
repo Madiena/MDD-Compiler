@@ -1,6 +1,6 @@
 package Discoverer
 
-import Parser.WebsiteParser._
+import Generator.WebsiteParser._
 import Utils.Reader
 
 import java.util

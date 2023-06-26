@@ -1,4 +1,4 @@
-package Parser
+package Generator
 
 import scala.util.parsing.combinator._
 import Utils.Writer
