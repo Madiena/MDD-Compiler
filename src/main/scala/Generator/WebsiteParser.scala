@@ -163,7 +163,7 @@ class WebsiteParser extends RegexParsers {
     """(([/\-!.:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
 
   def word: Parser[String] =
-    """([_a-zA-Z]+)|(0|[1-9]\d*)""".r
+    """([_a-zA-Z01-9]+)""".r
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 
