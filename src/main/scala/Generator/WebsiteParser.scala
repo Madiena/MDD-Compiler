@@ -178,21 +178,27 @@ object WebsiteParser {
   }
 
   case class Website(pages: List[Page]) {
+    def failure(error: String, test: Boolean): String = {
+      val failure: String = error
+      if (!test) {
+        println(failure)
+        exit(99)
+      } else {
+        failure
+      }
+    }
+
     def analyzeSemantics(test: Boolean): Any = {
-      var failure: String = ""
+      if (pages.isEmpty) {
+        failure("Error: At least one page must be provided!\n", test)
+      }
       for (page <- pages) {
         for (el <- page.body.bodyElements) {
           el match {
             case form: Form =>
               for (ele <- form.formEls) {
                 if (ele.label.toString != ele.formEl.id.toString) {
-                  failure = "Error: Label and Form Identifier must match!"
-                  if (!test) {
-                    println(failure)
-                    exit(99)
-                  } else {
-                    return failure
-                  }
+                  failure("Error: Label and form identifier must match!\n", test)
                 }
               }
             case table: Table =>
@@ -205,25 +211,30 @@ object WebsiteParser {
                 for (data <- rows.tabledatas) {
                   rs = rs + 1
                 }
-                if (hs != rs) failure = "Error: All table rows must have the same number as table columns!"
-                if (!test) {
-                  println(failure)
-                  exit(99)
-                } else {
-                  return failure
+                if (hs != rs) {
+                  failure("Error: All table rows must have the same number as table columns!\n", test)
                 }
               }
             case _ =>
           }
         }
         if (page.header.navbar.elements.length > 10) {
-          failure = "Error: To provide an optimal overview, the navbar may only contain 10 elements or less."
-          if (!test) {
-            println(failure)
-            exit(99)
-          } else {
-            return failure
+          failure("Error: To provide an optimal overview, the navbar may only contain 10 elements or less.\n", test)
+        } else if (page.header.navbar.elements.isEmpty) {
+          failure("Error: At least one element must be provided within the navbar!\n", test)
+        }
+        for (el <- page.header.navbar.elements) {
+          el match {
+            case navbarList: NavbarList => if (navbarList.links.isEmpty) {
+              failure("Error: At least one link must be provided within the navbar list!\n", test)
+            }
           }
+        }
+        if (page.body.bodyElements.isEmpty) {
+          failure("Error: At least one element must be provided within the body!\n", test)
+        }
+        if (page.footer.links.isEmpty) {
+          failure("Error: At least one link must be provided within the footer!\n", test)
         }
       }
     }

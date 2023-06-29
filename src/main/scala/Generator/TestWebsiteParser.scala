@@ -171,44 +171,67 @@ object TestWebsiteParser extends WebsiteParser {
       case Success(matched, _) =>
         assert(matched.toHtml == "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n<label for=\"fname\">Vorname</label>\n\n<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">\n<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>")
         println("✓ Form with one input field parsed and generated correctly.\n")
-      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+      case Failure(msg, _) => println("Syntax Error: " + msg)
     }
+    // Form with two input fields
     parseAll(form, "(Form: " +
       "(Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname)))," +
       "(Label: (Id: (lname)), (Vorname)), (Input: (Id: (lname)), (Placeholder: (Nachname)))" +
       ")") match {
-      case Success(matched, _) => assert(matched.toHtml == "")
-      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n<label for=\"fname\">Vorname</label>\n\n<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">\n<label for=\"lname\">Vorname</label>\n\n<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"lname\" placeholder=\"Nachname\">\n<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>")
+        println("✓ Form with two input fields parsed and generated correctly.\n")
+      case Failure(msg, _) => println("Syntax Error: " + msg)
     }
+    // Form with two textareas
     parseAll(form, "(Form: " +
       "(Label: (Id: (fname)), (Vorname)), (Textarea: (Id: (fname)), (Placeholder: (Vorname)))," +
       "(Label: (Id: (lname)), (Vorname)), (Textarea: (Id: (lname)), (Placeholder: (Nachname)))" +
       ")") match {
-      case Success(matched, _) => println(matched)
-      case Failure(msg, _) => println("Neee, war nix, weil: " + msg)
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n<label for=\"fname\">Vorname</label>\n\n<textarea style=\"margin-bottom: 50px\" id=\"fname\" class=\"form-control\" placeholder=\"Vorname\" style=\"height:200px\"></textarea>\n\n<label for=\"lname\">Vorname</label>\n\n<textarea style=\"margin-bottom: 50px\" id=\"lname\" class=\"form-control\" placeholder=\"Nachname\" style=\"height:200px\"></textarea>\n\n<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>")
+        println("✓ Form with two textareas parsed and generated correctly.\n")
+      case Failure(msg, _) => println("Syntax Error: " + msg)
     }
+    // Form with one input field and one textarea
     parseAll(form, "(Form: " +
       "(Label: (Id: (fname)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname)))," +
       "(Label: (Id: (subject)), (Vorname)),  (Textarea: (Id: (subject)), (Placeholder: (Nachricht)))" +
       ")") match {
-      case Success(matched, _) => println(matched)
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n<label for=\"fname\">Vorname</label>\n\n<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">\n<label for=\"subject\">Vorname</label>\n\n<textarea style=\"margin-bottom: 50px\" id=\"subject\" class=\"form-control\" placeholder=\"Nachricht\" style=\"height:200px\"></textarea>\n\n<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>")
+        println("✓ Form with one input field and one textarea parsed and generated correctly.\n")
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
     parseAll(label, "(Label: (Id: (fname)), (Vorname:))") match {
-      case Success(matched, _) => assert(matched.toHtml == "<label for=\"fname\">Vorname:</label>\n")
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<label for=\"fname\">Vorname:</label>\n")
+        println("✓ Label parsed and generated correctly.\n")
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
     parseAll(textArea, "(Textarea: (Id: (subject)), (Placeholder: (Nachricht)))") match {
-      case Success(matched, _) => assert(matched.toHtml == "<textarea style=\"margin-bottom: 50px\" id=\"subject\" class=\"form-control\" placeholder=\"Nachricht\" style=\"height:200px\"></textarea>\n")
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<textarea style=\"margin-bottom: 50px\" id=\"subject\" class=\"form-control\" placeholder=\"Nachricht\" style=\"height:200px\"></textarea>\n")
+        println("✓ Textarea parsed and generated correctly.\n")
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
     parseAll(input, "(Input: (Id: (fname)), (Placeholder: (Vorname)))") match {
-      case Success(matched, _) => assert(matched.toHtml == "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">")
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">")
+        println("✓ Input parsed and generated correctly.\n")
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
 
 
-    // --- Test for semantic analysis --- //
+    // --- Test for semantic analysis and correct syntax --- //
+
+    // Tests an incorrect syntax. This test is supposed to fail.
+    parseAll(input, "(Input: Id: (fname), (Placeholder: (Vorname)))") match {
+      case Success(matched, _) =>
+        assert(matched.toHtml == "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">")
+        println("✓ Input parsed and generated correctly.\n")
+      case Failure(msg, _) => println("Syntax Error: " + msg + "\n")
+    }
 
     // Tests whether the same number of tabledatas are given for each row. This test is supposed to fail.
     parseAll(website,
@@ -222,8 +245,9 @@ object TestWebsiteParser extends WebsiteParser {
         |           )
         |), (Footer: )
         |)""".stripMargin) match {
-      case Success(matched, _) => println(matched.analyzeSemantics(true))
-        assert(matched.analyzeSemantics(true) == "Error: All table rows must have the same number as table columns!")
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: All table rows must have the same number as table columns!\n")
+        println(matched.analyzeSemantics(true))
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
 
@@ -247,50 +271,45 @@ object TestWebsiteParser extends WebsiteParser {
         | (Body: ),
         |(Footer: )
         |)""".stripMargin) match {
-      case Success(matched, _) => println(matched.analyzeSemantics(true))
-        assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.")
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.\n")
+        println(matched.analyzeSemantics(true))
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
 
-
+    // Test whether label id and input id are same. This test is supposed to fail.
     parseAll(website,
       """Website:
-        |(Page:
-        |(Header:
-        |(Image:(misc/Logo_THM.png)),
-        |(Navbar:  (Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)))),
-        | (Body: ),
-        |(Footer: )
-        |),(Page:
-        |(Header:
-        |(Image:(misc/Logo_THM.png)),
-        |(Navbar:  (Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)),
-        |(Link: (Startseite), (index.html)))),
-        | (Body: ),
-        |(Footer: )
-        |)""".stripMargin) match {
-      case Success(matched, _) => println(matched.buildWebsite())
-        assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.")
+    (Page:
+    (Header:
+    (Image:(misc/Logo_THM.png)),
+    (Navbar:  (Link: (Startseite), (index.html)),
+    (Link: (Startseite), (index.html)))),
+    (Body: (Form: (Label: (Id: (wrongId)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname))))),
+    (Footer: )
+    )""") match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: Label and form identifier must match!\n")
+        println("Input field: " + matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Test whether label id and textarea id are same. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+    (Page:
+    (Header:
+    (Image:(misc/Logo_THM.png)),
+    (Navbar:  (Link: (Startseite), (index.html)),
+    (Link: (Startseite), (index.html)))),
+    (Body: (Form: (Label: (Id: (wrongId)), (Vorname)), (Textarea: (Id: (fname)), (Placeholder: (Vorname))))),
+    (Footer: )
+    )""") match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: Label and form identifier must match!\n")
+        println("Textarea: " + matched.analyzeSemantics(true))
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
   }
 
-  // TODO: Syntax error triggern!
 }
