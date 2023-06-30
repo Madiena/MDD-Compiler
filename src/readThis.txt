@@ -1,6 +1,0 @@
-"Website: (" +
-      "   Page: (" +
-      "       (Header: (Image: (image.jpg)), (Navbar: (Link:(Id),(Destin.html)))), (Body: (Image: (image.jpg))), (Footer: (Link:(Id),(Destin.html)))" +
-      "       " +
-      "       )" +
-      "   )"
