@@ -190,7 +190,7 @@ object WebsiteParser {
 
     def analyzeSemantics(test: Boolean): Any = {
       if (pages.isEmpty) {
-        failure("Error: At least one page must be provided!\n", test)
+        return failure("Error: At least one page must be provided!\n", test)
       }
       for (page <- pages) {
         for (el <- page.body.bodyElements) {
@@ -198,8 +198,11 @@ object WebsiteParser {
             case form: Form =>
               for (ele <- form.formEls) {
                 if (ele.label.toString != ele.formEl.id.toString) {
-                  failure("Error: Label and form identifier must match!\n", test)
+                  return failure("Error: Label and form identifier must match!\n", test)
                 }
+              }
+              if (form.formEls.isEmpty) {
+                return failure("Error: At least one form element must be provided within a form!\n", test)
               }
             case table: Table =>
               var rs: Int = 0
@@ -212,29 +215,42 @@ object WebsiteParser {
                   rs = rs + 1
                 }
                 if (hs != rs) {
-                  failure("Error: All table rows must have the same number as table columns!\n", test)
+                  return failure("Error: All table rows must have the same number as table columns!\n", test)
                 }
               }
+              if (table.tablerowdatas.isEmpty) {
+                return failure("Error: At least one row of table heads and one row of table datas must be provided within a table.\n", test)
+              }
+            case text: Text => if (text.textel.isEmpty) {
+              return failure("Error: At least one text element must be provided within a text!\n", test)
+            }
+            case ul: UnorderedList => if (ul.elements.isEmpty) {
+              return failure("Error: At least one list element must be provided within the unordered list!\n", test)
+            }
+            case ol: OrderedList => if (ol.elements.isEmpty) {
+              return failure("Error: At least one list element must be provided within the ordered list!\n", test)
+            }
             case _ =>
           }
         }
         if (page.header.navbar.elements.length > 10) {
-          failure("Error: To provide an optimal overview, the navbar may only contain 10 elements or less.\n", test)
+          return failure("Error: To provide an optimal overview, the navbar may only contain 10 elements or less.\n", test)
         } else if (page.header.navbar.elements.isEmpty) {
-          failure("Error: At least one element must be provided within the navbar!\n", test)
+          return failure("Error: At least one element must be provided within the navbar!\n", test)
         }
         for (el <- page.header.navbar.elements) {
           el match {
             case navbarList: NavbarList => if (navbarList.links.isEmpty) {
-              failure("Error: At least one link must be provided within the navbar list!\n", test)
+              return failure("Error: At least one link must be provided within the navbar list!\n", test)
             }
+            case _ =>
           }
         }
         if (page.body.bodyElements.isEmpty) {
-          failure("Error: At least one element must be provided within the body!\n", test)
+          return failure("Error: At least one element must be provided within the body!\n", test)
         }
         if (page.footer.links.isEmpty) {
-          failure("Error: At least one link must be provided within the footer!\n", test)
+          return failure("Error: At least one link must be provided within the footer!\n", test)
         }
       }
     }

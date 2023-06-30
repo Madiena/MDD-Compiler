@@ -243,7 +243,7 @@ object TestWebsiteParser extends WebsiteParser {
         |), (Body: (Table: (Tablerow: (Zeit), (Montag)),
         |                  (Tablerow: (8:00-9:30))
         |           )
-        |), (Footer: )
+        |), (Footer: (Link: (Startseite), (index.html)))
         |)""".stripMargin) match {
       case Success(matched, _) =>
         assert(matched.analyzeSemantics(true) == "Error: All table rows must have the same number as table columns!\n")
@@ -268,8 +268,8 @@ object TestWebsiteParser extends WebsiteParser {
         |(Link: (Startseite), (index.html)),
         |(Link: (Startseite), (index.html)),
         |(Link: (Startseite), (index.html)))),
-        | (Body: ),
-        |(Footer: )
+        | (Body: (Image:(misc/Logo_THM.png))),
+        |(Footer: (Link: (Startseite), (index.html)))
         |)""".stripMargin) match {
       case Success(matched, _) =>
         assert(matched.analyzeSemantics(true) == "Error: To provide an optimal overview, the navbar may only contain 10 elements or less.\n")
@@ -286,7 +286,7 @@ object TestWebsiteParser extends WebsiteParser {
     (Navbar:  (Link: (Startseite), (index.html)),
     (Link: (Startseite), (index.html)))),
     (Body: (Form: (Label: (Id: (wrongId)), (Vorname)), (Input: (Id: (fname)), (Placeholder: (Vorname))))),
-    (Footer: )
+    (Footer: (Link: (Startseite), (index.html)))
     )""") match {
       case Success(matched, _) =>
         assert(matched.analyzeSemantics(true) == "Error: Label and form identifier must match!\n")
@@ -303,11 +303,165 @@ object TestWebsiteParser extends WebsiteParser {
     (Navbar:  (Link: (Startseite), (index.html)),
     (Link: (Startseite), (index.html)))),
     (Body: (Form: (Label: (Id: (wrongId)), (Vorname)), (Textarea: (Id: (fname)), (Placeholder: (Vorname))))),
-    (Footer: )
+    (Footer: (Link: (Startseite), (index.html)))
     )""") match {
       case Success(matched, _) =>
         assert(matched.analyzeSemantics(true) == "Error: Label and form identifier must match!\n")
         println("Textarea: " + matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Test whether pages are empty. This test is supposed to fail.
+    parseAll(website,
+      """Website: """) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one page must be provided!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Test a form is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+    (Page:
+    (Header:
+    (Image:(misc/Logo_THM.png)),
+    (Navbar:  (Link: (Startseite), (index.html)),
+    (Link: (Startseite), (index.html)))),
+    (Body: (Form: )),
+    (Footer: (Link: (Startseite), (index.html)))
+    )""") match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one form element must be provided within a form!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether a table is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Link: (Startseite), (index.html)))
+        |), (Body: (Table: (Tablerow: ),
+        |           )
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one row of table heads and one row of table datas must be provided within a table.\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether a text is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Link: (Startseite), (index.html)))
+        |), (Body: (Text: )
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one text element must be provided within a text!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether an unordered list is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Link: (Startseite), (index.html)))
+        |), (Body: (List unordered: )
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one list element must be provided within the unordered list!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether an ordered list is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Link: (Startseite), (index.html)))
+        |), (Body: (List ordered: )
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one list element must be provided within the ordered list!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: )
+        |), (Body: (Image:(misc/Logo_THM.png))
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one element must be provided within the navbar!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether a navbar list is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Dropdown: (leeres Dropdown), ))
+        |), (Body: (Image:(misc/Logo_THM.png))
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one link must be provided within the navbar list!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether the body is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Link: (Startseite), (index.html)))
+        |), (Body:
+        |), (Footer: (Link: (Startseite), (index.html)))
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one element must be provided within the body!\n")
+        println(matched.analyzeSemantics(true))
+      case Failure(msg, _) => println("Syntax Error: " + msg)
+    }
+
+    // Tests whether the footer is empty. This test is supposed to fail.
+    parseAll(website,
+      """Website:
+        |(Page:
+        |(Header:
+        |(Image:(misc/Logo_THM.png)),
+        |(Navbar: (Link: (Startseite), (index.html)))
+        |), (Body: (Image:(misc/Logo_THM.png))
+        |), (Footer: )
+        |)""".stripMargin) match {
+      case Success(matched, _) =>
+        assert(matched.analyzeSemantics(true) == "Error: At least one link must be provided within the footer!\n")
+        println(matched.analyzeSemantics(true))
       case Failure(msg, _) => println("Syntax Error: " + msg)
     }
   }
