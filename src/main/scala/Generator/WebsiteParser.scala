@@ -111,16 +111,17 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ thList ~ s2 => Tablerowhead(thList)
     }
 
-  def tableData: Parser[Tabledata] = wrappedIdentifier ^^ { id => Tabledata(id) }
+  def tablehead: Parser[Tablehead] =
+    """\(""".r ~ word ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Tablehead(id)
+    }
 
   def tableRowData: Parser[Tablerowdata] =
     """\(Tablerow:""".r ~ repsep(tableData, ",") ~ """\)""".r ^^ {
       case s1 ~ tdList ~ s2 => Tablerowdata(tdList)
     }
 
-  def tablehead: Parser[Tablehead] =
-    """\(""".r ~ word ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Tablehead(id)
-    }
+  def tableData: Parser[Tabledata] = wrappedIdentifier ^^ { id => Tabledata(id) }
+
 
   def form: Parser[BodyElement] =
     """\(Form:""".r ~ repsep(formElWLabel, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
