@@ -23,7 +23,7 @@ object TestWebsiteParser extends WebsiteParser {
         val reader: Reader = new Reader()
         var nr = 1
         while (new File("file" + nr + ".html").exists()) {
-          var f: File = new File("file" + nr + ".html")
+          val f: File = new File("file" + nr + ".html")
           f.delete()
           nr += 1
         }

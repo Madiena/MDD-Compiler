@@ -8,10 +8,27 @@ import java.util
 class Discoverer() {
   var input: String = ""
 
-  def discoverWebsite(): String = {
+  def discoverWebsite(): "" = {
     val reader: Reader = new Reader()
+    var pages: List[Page] = List()
     input = reader.readFile()
-    discoverPage(input)
+    var page: String = ""
+    while(input != "") {
+      while(!input.startsWith("\n<!DOCTYPE html") && input != "") {
+        page = page + input.charAt(0)
+        if(input.length > 1) {
+          input = input.replace(input, input.substring(1))
+        } else {
+          input = ""
+        }
+      }
+      val p = discoverPage(page)
+      pages = pages ++ List(p)
+      page = ""
+      if (input != "") {
+        input = input.replace(input, input.substring(1))
+      }
+    }
     ""
   }
 
@@ -73,8 +90,7 @@ class Discoverer() {
     } // Text
     else if (input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<h") || input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<p")) {
       return discoverText(input)
-    }
-    // Paragraph
+    } // Paragraph
     else if (input.contains("<p ")) {
       return discoverParagraph(input)
     } // Headline
@@ -518,14 +534,14 @@ class Discoverer() {
     var sub: String = input.replace(input, input.substring(55))
     var link: String = ""
     var links: List[Link] = List()
-    var end: String = "\n</footer>\n"
+    val end: String = "\n</footer>\n"
     while (sub != end) {
       while (!sub.startsWith("</li>")) {
         link = link + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
       sub = sub.replace(sub, sub.substring(10))
-      var l: Link = discoverLink(link)
+      val l: Link = discoverLink(link)
       links = links ++ List(l)
       link = ""
     }

@@ -16,7 +16,7 @@ class Reader {
       file.close()
       num += 1
     }
-    input = input.substring(0, input.length)
+    input = input.replace(input, input.substring(1))
     input
   }
 }

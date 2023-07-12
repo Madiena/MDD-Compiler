@@ -91,7 +91,7 @@ object Absyn {
     }
 
     def buildWebsite(): Unit = {
-      var writer: Writer = new Writer()
+      val writer: Writer = new Writer()
       var nr = 1
       analyzeSemantics(false)
       for (page <- pages) {
@@ -247,27 +247,16 @@ object Absyn {
   }
 
   case class Table(tablerowhead: Tablerowhead, tablerowdatas: List[Tablerowdata]) extends BodyElement {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (trd <- tablerowdatas) {
       htmlBuilder.append(trd.toHtml).append("\n")
     }
 
-    override def toHtml: String = "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n" + tablerowhead.toHtml + "\n" + htmlBuilder.toString() + "</table>\n</div>\n"
+    override def toHtml: String = "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n" +
+      tablerowhead.toHtml + "\n" + htmlBuilder.toString() + "</table>\n</div>\n"
 
     override def toString: String = "(Table: " + tablerowhead + ", " + tablerowdatas.mkString(", ") + ")"
 
-  }
-
-  case class Tablerowdata(tabledatas: List[Tabledata]) {
-    private val htmlBuilder = new StringBuilder()
-    for (td <- tabledatas) {
-      htmlBuilder.append(td.toHtml)
-    }
-
-    def toHtml: String = "<tr>\n" + htmlBuilder.toString() + "</tr>"
-
-    override def toString: String = "(Tablerow: " + tabledatas.mkString(", ") + ")"
   }
 
   case class Tablerowhead(tableheads: List[Tablehead]) {
@@ -287,13 +276,23 @@ object Absyn {
     override def toString: String = "(" + identifier + ")"
   }
 
+  case class Tablerowdata(tabledatas: List[Tabledata]) {
+    private val htmlBuilder = new StringBuilder()
+    for (td <- tabledatas) {
+      htmlBuilder.append(td.toHtml)
+    }
+
+    def toHtml: String = "<tr>\n" + htmlBuilder.toString() + "</tr>"
+
+    override def toString: String = "(Tablerow: " + tabledatas.mkString(", ") + ")"
+  }
   case class Tabledata(identifier: String) {
     def toHtml: String = "<td>" + identifier + "</td>\n"
 
     override def toString: String = "(" + identifier + ")"
   }
 
-   case class Form(formEls: List[FormEl]) extends BodyElement {
+   case class Form(formEls: List[FormElEl]) extends BodyElement {
     private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (el <- formEls) {
@@ -307,13 +306,13 @@ object Absyn {
     override def toString: String = "(Form: " + sb.toString() + ")"
   }
 
-  case class FormEl(label: Label, formEl: FormElEl) {
+  case class FormElEl(label: Label, formEl: FormEl) {
     def toHtml: String = label.toHtml + "\n" + formEl.toHtml + "\n"
 
     override def toString: String = "(" + label.toString() + "," + formEl.toString + ")"
   }
 
-  abstract sealed class FormElEl() {
+  abstract sealed class FormEl() {
     def id: FormIdentifier
 
     def toHtml: String
@@ -325,7 +324,7 @@ object Absyn {
     override def toString: String = "(Label: (Id: (" + id.toString() + ")), (" + identifier + "))"
   }
 
-  case class TextArea(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
+  case class TextArea(id: FormIdentifier, placeholder: Placeholder) extends FormEl {
     override def toHtml: String = "<textarea style=\"margin-bottom: 50px\" id=\"" + id.toString + "\" class=\"form-control\" placeholder=\"" + placeholder.toString + "\" style=\"height:200px\"></textarea>\n"
 
     override def toString: String = "(Textarea: (Id: (" + id.toString + ")), (Placeholder: (" + placeholder.toString + ")))"
@@ -340,7 +339,7 @@ object Absyn {
     override def toString: String = id
   }
 
-  case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormElEl {
+  case class InputEl(id: FormIdentifier, placeholder: Placeholder) extends FormEl {
     override def toHtml: String = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"" + id.toString + "\" placeholder=\"" + placeholder.toString + "\">"
 
     override def toString: String = "(Input: (Id: (" + id + ")), (Placeholder: (" + placeholder.toString + ")))"

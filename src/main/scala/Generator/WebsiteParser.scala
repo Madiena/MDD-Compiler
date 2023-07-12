@@ -32,7 +32,8 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ elList ~ s2 => Body(elList)
     }
 
-  private def bodyEl: Parser[BodyElement] = image | text | unorderedList | orderedList | fullTable | link | form
+  private def bodyEl: Parser[BodyElement] = image | text | unorderedList |
+                                            orderedList | fullTable | link | form
 
   def footer: Parser[Footer] =
     """\(Footer:""".r ~ repsep(link, ",") ~ """\)""".r ^^ {
@@ -126,11 +127,11 @@ class WebsiteParser extends RegexParsers {
   def form: Parser[BodyElement] =
     """\(Form:""".r ~ repsep(formElWLabel, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
-  def formElWLabel: Parser[FormEl] = label ~ """,""".r ~ formEl ^^ {
-    case la ~ s ~ el => FormEl(la, el)
+  def formElWLabel: Parser[FormElEl] = label ~ """,""".r ~ formEl ^^ {
+    case la ~ s ~ el => FormElEl(la, el)
   }
 
-  def formEl: Parser[FormElEl] = input | textArea
+  def formEl: Parser[FormEl] = input | textArea
 
   def label: Parser[Label] = """\(Label:""".r ~ formId ~ """,""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 ~ wi ~ s3 => Label(id, wi) }
 
