@@ -1,4 +1,4 @@
-package Generator
+package Generation
 
 import Utils.Writer
 
@@ -13,7 +13,7 @@ object Absyn {
   }
 
   case class Website(pages: List[Page]) {
-    def failure(error: String, test: Boolean): String = {
+    private def failure(error: String, test: Boolean): String = {
       val failure: String = error
       if (!test) {
         println(failure)
@@ -42,11 +42,11 @@ object Absyn {
             case table: Table =>
               var rs: Int = 0
               var hs: Int = 0
-              for (heads <- table.tablerowhead.tableheads) {
+              for (_ <- table.tablerowhead.tableheads) {
                 hs = hs + 1
               }
               for (rows <- table.tablerowdatas) {
-                for (data <- rows.tabledatas) {
+                for (_ <- rows.tabledatas) {
                   rs = rs + 1
                 }
                 if (hs != rs) {
@@ -293,23 +293,21 @@ object Absyn {
   }
 
    case class Form(formEls: List[FormElEl]) extends BodyElement {
-    private val sb = new StringBuilder()
     private val htmlBuilder = new StringBuilder()
     for (el <- formEls) {
-      sb.addString(sb.append("(" + el + ")"), ",")
       htmlBuilder.append(el.toHtml)
     }
 
     override def toHtml: String = "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">" +
       "\n" + htmlBuilder.toString() + "<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>"
 
-    override def toString: String = "(Form: " + sb.toString() + ")"
+    override def toString: String = "(Form: " + formEls.mkString(", ") + ")"
   }
 
   case class FormElEl(label: Label, formEl: FormEl) {
     def toHtml: String = label.toHtml + "\n" + formEl.toHtml + "\n"
 
-    override def toString: String = "(" + label.toString() + "," + formEl.toString + ")"
+    override def toString: String = label.toString() + ", " + formEl.toString
   }
 
   abstract sealed class FormEl() {

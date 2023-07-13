@@ -1,22 +1,28 @@
-package Discoverer
+package Discovering
 
-import Generator.Absyn._
+import Generation.Absyn._
 import Utils.Reader
 
-import java.util
+import scala.sys.exit
+
 
 class Discoverer() {
   var input: String = ""
+  var failure: String = ""
 
-  def discoverWebsite(): "" = {
+  def readInvalid(): Unit = {
+
+  }
+
+  def discoverWebsite(): Website = {
     val reader: Reader = new Reader()
     var pages: List[Page] = List()
     input = reader.readFile()
     var page: String = ""
-    while(input != "") {
-      while(!input.startsWith("\n<!DOCTYPE html") && input != "") {
+    while (input != "") {
+      while (!input.startsWith("\n<!DOCTYPE html") && input != "") {
         page = page + input.charAt(0)
-        if(input.length > 1) {
+        if (input.length > 1) {
           input = input.replace(input, input.substring(1))
         } else {
           input = ""
@@ -29,7 +35,9 @@ class Discoverer() {
         input = input.replace(input, input.substring(1))
       }
     }
-    ""
+    val website: Website = Website(pages)
+    println(website.toString + "\n")
+    website
   }
 
   def discover(input: String): Object = {
@@ -45,6 +53,9 @@ class Discoverer() {
     } // Footer
     else if (input.contains("<footer ")) {
       return discoverFooter(input)
+    } // Form
+    else if (input.contains("<form ")) {
+      return discoverForm(input)
     } // Input
     else if (input.contains("<input")) {
       return discoverInput(input)
@@ -62,7 +73,7 @@ class Discoverer() {
       return discoverTable(input)
     } // TableRowHead
     else if (input.contains("<thead>")) {
-      return disvoverTableRowHead(input)
+      return discoverTableRowHead(input)
     } // Tablehead
     else if (input.contains("<th")) {
       return discoverTablehead(input)
@@ -102,17 +113,77 @@ class Discoverer() {
     } // Image
     else if (input.contains("<img ")) {
       return discoverImage(input)
+    } else {
+      println("Error: Given input doesn't match any possible language constructs.")
+      exit(99)
     }
-    ""
+  }
+
+  def discoverForm(input: String): Form = {
+    if (input.substring(0, 156) != "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n") {
+      failure = failure + input + "\n"
+      return null
+    }
+
+    if(input.substring(input.length - 59, input.length) != "\n<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>") {
+      failure = failure + input + "\n"
+      return null
+    }
+    var sub: String = input.replace(input, input.substring(156))
+    val end = "<input type=\"submit\" value=\"Submit\">\n</div>\n</form>\n</div>"
+    var label: String = ""
+    var formel: String = ""
+    var formels: List[FormElEl] = List()
+    while (sub != end) {
+      while (!sub.startsWith("label>")) {
+        label = label + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      for (i <- 0 to 6) {
+        label = label + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      val l = discoverLabel(label)
+      sub = sub.replace(sub, sub.substring(1))
+      formel = formel + sub.charAt(0)
+      sub = sub.replace(sub, sub.substring(1))
+      while (!sub.startsWith("\n<label") && !sub.startsWith("\n<input type=\"submit\"")) {
+        formel = formel + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+      }
+      if (formel.startsWith("<input")) {
+        val input = discoverInput(formel)
+        val f = FormElEl(l, input)
+        formels = formels ++ List(f)
+      } else if (formel.startsWith("<textarea")) {
+        val textArea = discoverTextarea(formel)
+        val f = FormElEl(l, textArea)
+        formels = formels ++ List(f)
+      }
+      label = ""
+      formel = ""
+      sub = sub.replace(sub, sub.substring(1))
+    }
+    val form = Form(formels)
+    println(form + "\n")
+    form
   }
 
   def discoverInput(input: String): InputEl = {
+    if (input.substring(0, 72) != "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(72))
     var id: String = ""
     var placeholder: String = ""
     while (sub.charAt(0) != '"') {
       id = id + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
+    }
+    if(sub.substring(0, 15) != "\" placeholder=\"") {
+      failure = failure + input + "\n"
+      return null
     }
     sub = sub.replace(sub, sub.substring(15))
     while (sub.charAt(0) != '"') {
@@ -123,17 +194,24 @@ class Discoverer() {
     val ph: Placeholder = Placeholder(placeholder)
     val inputEl: InputEl = InputEl(formIdentifier, ph)
     println(inputEl.toString + "\n")
-    assert(inputEl.toString == "(Input: (Id: (fname)), (Placeholder: (Vorname)))")
     inputEl
   }
 
   def discoverTextarea(input: String): TextArea = {
+    if (input.substring(0, 42) != "<textarea style=\"margin-bottom: 50px\" id=\"") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(42))
     var id: String = ""
     var placeholder: String = ""
     while (sub.charAt(0) != '"') {
       id = id + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
+    }
+    if (sub.substring(0, 36) != "\" class=\"form-control\" placeholder=\"") {
+      failure = failure + input + "\n"
+      return null
     }
     sub = sub.replace(sub, sub.substring(36))
     while (sub.charAt(0) != '"') {
@@ -148,12 +226,20 @@ class Discoverer() {
   }
 
   def discoverLabel(input: String): Label = {
+    if (input.substring(0, 12) != "<label for=\"") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(12))
     var id: String = ""
     var in: String = ""
     while (sub.charAt(0) != '"') {
       id = id + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
+    }
+    if (sub.substring(0, 2) != "\">") {
+      failure = failure + input + "\n"
+      return null
     }
     sub = sub.replace(sub, sub.substring(2))
     while (sub.charAt(0) != '<') {
@@ -167,6 +253,10 @@ class Discoverer() {
   }
 
   def discoverTablehead(input: String): Tablehead = {
+    if (input.substring(0, 24) != "<th class=\"text-center\">") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(24))
     var id: String = ""
     while (sub.charAt(0) != '<') {
@@ -179,6 +269,14 @@ class Discoverer() {
   }
 
   def discoverTableRowData(input: String): Tablerowdata = {
+    if (input.substring(0, 5) != "<tr>\n") {
+      failure = failure + input + "\n"
+      return null
+    }
+    if (input.substring(input.length -6, input.length) != "\n</tr>") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(5))
     val end: String = "\n</tr>"
     var tabledata: String = ""
@@ -191,7 +289,7 @@ class Discoverer() {
         tabledata = tabledata + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
-      var td: Tabledata = discoverTabledata(tabledata)
+      val td: Tabledata = discoverTabledata(tabledata)
       tabledatas = tabledatas ++ List(td)
       tabledata = ""
     }
@@ -201,6 +299,10 @@ class Discoverer() {
   }
 
   def discoverTabledata(input: String): Tabledata = {
+    if (input.substring(0, 4) != "<td>") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(4))
     var id: String = ""
     while (sub.charAt(0) != '<') {
@@ -212,9 +314,17 @@ class Discoverer() {
     tabledata
   }
 
-  def disvoverTableRowHead(input: String): Tablerowhead = {
+  def discoverTableRowHead(input: String): Tablerowhead = {
+    if (input.substring(0, 13) != "<thead>\n<tr>\n") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(13))
     val end: String = "\n</tr>\n</thead>"
+    if (input.substring(input.length - 15, input.length) != end) {
+      failure = failure + input + "\n"
+      return null
+    }
     var tablehead: String = ""
     var tableheads: List[Tablehead] = List()
     while (sub != end) {
@@ -225,7 +335,7 @@ class Discoverer() {
         tablehead = tablehead + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
-      var th: Tablehead = discoverTablehead(tablehead)
+      val th: Tablehead = discoverTablehead(tablehead)
       tableheads = tableheads ++ List(th)
       tablehead = ""
     }
@@ -235,9 +345,17 @@ class Discoverer() {
   }
 
   def discoverTable(input: String): Table = {
+    if (input.substring(0, 69) != "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(69))
     var trhString: String = ""
     val tableEnd: String = "\n</table>\n</div>\n"
+    if (input.substring(input.length -17, input.length) != tableEnd) {
+      failure = failure + input + "\n"
+      return null
+    }
     while (sub.contains("</thead>")) {
       trhString = trhString + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
@@ -246,7 +364,7 @@ class Discoverer() {
       trhString = trhString + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
     }
-    var tablerowhead: Tablerowhead = disvoverTableRowHead(trhString)
+    val tablerowhead: Tablerowhead = discoverTableRowHead(trhString)
     var tablerowdata: String = ""
     var tableRowDatas: List[Tablerowdata] = List()
     while (sub != tableEnd) {
@@ -271,6 +389,10 @@ class Discoverer() {
   }
 
   def discoverListElement(input: String): ListElement = {
+    if (input.substring(0, 4) != "<li>") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(4))
     var id: String = ""
     while (sub.charAt(0) != '<') {
@@ -283,8 +405,16 @@ class Discoverer() {
   }
 
   def discoverOrderedList(input: String): OrderedList = {
+    if (input.substring(0, 48) != "<div class=\"col-sm-8 text-left bg-content\">\n<ol>") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(48))
     val end: String = "\n</ol></div>\n"
+    if (input.substring(input.length -13, input.length) != end) {
+      failure = failure + input + "\n"
+      return null
+    }
     var listElement: String = ""
     var list: List[ListElement] = List()
     while (sub != end) {
@@ -305,8 +435,16 @@ class Discoverer() {
   }
 
   def discoverUnorderedList(input: String): UnorderedList = {
+    if (input.substring(0, 48) != "<div class=\"col-sm-8 text-left bg-content\">\n<ul>") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(48))
     val end: String = "\n</ul></div>\n"
+    if (input.substring(input.length - 13, input.length) != end) {
+      failure = failure + input + "\n"
+      return null
+    }
     var listElement: String = ""
     var list: List[ListElement] = List()
     while (sub != end) {
@@ -327,6 +465,10 @@ class Discoverer() {
   }
 
   def discoverParagraph(input: String): Paragraph = {
+    if (input.substring(0, 31) != "<p style=\"margin-bottom: 25px\">") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(31))
     var id: String = ""
     while (sub.charAt(0) != '<') {
@@ -339,8 +481,16 @@ class Discoverer() {
   }
 
   def discoverHeadline(input: String): Headline = {
+    if (input.substring(0, 2) != "<h") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(2))
-    var num: Char = sub.charAt(0)
+    val num: Char = sub.charAt(0)
+    if (sub.substring(1, 2) != ">") {
+      failure = failure + input + "\n"
+      return null
+    }
     sub = sub.replace(sub, sub.substring(2))
     var id: String = ""
     while (sub.charAt(0) != '<') {
@@ -353,11 +503,19 @@ class Discoverer() {
   }
 
   def discoverText(input: String): Text = {
+    if (input.substring(0, 124) != "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(124))
     var headline: String = ""
     var paragraph: String = ""
     var textEls: List[TextEl] = List()
     val end: String = "</div>\n</div>\n"
+    if (input.substring(input.length -14, input.length) != end) {
+      failure = failure + input + "\n"
+      return null
+    }
     while (sub != end) {
       if (sub.charAt(0) == '\n') {
         sub = sub.replace(sub, sub.substring(1))
@@ -394,12 +552,20 @@ class Discoverer() {
   }
 
   def discoverLink(input: String): Link = {
+    if (input.substring(0, 9) != "<a href=\"") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(9))
     var destination: String = ""
     var identifier: String = ""
     while (sub.charAt(0) != '"') {
       destination = destination + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
+    }
+    if (sub.substring(0, 2) != "\">") {
+      failure = failure + input + "\n"
+      return null
     }
     sub = sub.replace(sub, sub.substring(2))
     while (sub.charAt(0) != '<') {
@@ -414,12 +580,20 @@ class Discoverer() {
   }
 
   def discoverNavlink(input: String): NavLink = {
+    if (input.substring(0, 13) != "<li><a href=\"") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(13))
     var destination: String = ""
     var identifier: String = ""
     while (sub.charAt(0) != '"') {
       destination = destination + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
+    }
+    if (sub.substring(0, 2) != "\">") {
+      failure = failure + input + "\n"
+      return null
     }
     sub = sub.replace(sub, sub.substring(2))
     while (sub.charAt(0) != '<') {
@@ -434,14 +608,26 @@ class Discoverer() {
   }
 
   def discoverNavbarlist(input: String): NavbarList = {
+    if (input.substring(0, 72) != "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(72))
     var id: String = ""
     val end: String = "</ul>\n</li>\n"
+    if (input.substring(input.length -12, input.length) != end) {
+      failure = failure + input + "\n"
+      return null
+    }
     var navlink: String = ""
     var navlinks: List[NavLink] = List()
     while (sub.charAt(0) != '\n') {
       id = id + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
+    }
+    if (sub.substring(0, 60) != "\n<span class=\"caret\"></span></a>\n<ul class=\"dropdown-menu\">\n") {
+      failure = failure + input + "\n"
+      return null
     }
     sub = sub.replace(sub, sub.substring(60))
     while (sub != end) {
@@ -464,8 +650,16 @@ class Discoverer() {
   }
 
   def discoverNavbar(input: String): Navbar = {
+    if (input.substring(0, 126) != "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n<ul class=\"nav navbar-nav\">\n") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(126))
     val end: String = "</ul>\n</div>\n</div>\n</nav>\n"
+    if (input.substring(input.length -27, input.length) != end) {
+      failure = failure + input + "\n"
+      return null
+    }
     var navbarList: String = ""
     var navLink: String = ""
     var both: String = ""
@@ -519,6 +713,10 @@ class Discoverer() {
   }
 
   def discoverImage(input: String): Image = {
+    if (input.substring(0, 10) != "<img src=\"") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(10))
     var id: String = ""
     while (sub.charAt(0) != '"') {
@@ -531,10 +729,18 @@ class Discoverer() {
   }
 
   def discoverFooter(input: String): Footer = {
+    if (input.substring(0, 55) != "<footer class=\"container-fluid text-center\">\n<ul>\n") {
+      failure = failure + input + "\n"
+      return null
+    }
     var sub: String = input.replace(input, input.substring(55))
     var link: String = ""
     var links: List[Link] = List()
     val end: String = "\n</footer>\n"
+    if (input.substring(input.length -11, input.length) != "<footer class=\"container-fluid text-center\">\n<ul>\n") {
+      failure = failure + input + "\n"
+      return null
+    }
     while (sub != end) {
       while (!sub.startsWith("</li>")) {
         link = link + sub.charAt(0)
@@ -553,7 +759,7 @@ class Discoverer() {
   def discoverBody(input: String): Body = {
     var sub: String = input.replace(input, input.substring(7))
     var bodyElements: List[BodyElement] = List()
-    var end: String = "</body>\n"
+    val end: String = "</body>\n"
 
     while (sub != end) {
       // image
@@ -565,7 +771,7 @@ class Discoverer() {
         }
         image = image + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        var img: Image = discoverImage(image)
+        val img: Image = discoverImage(image)
         bodyElements = bodyElements ++ List(img)
       }
       // link
@@ -577,7 +783,7 @@ class Discoverer() {
         }
         link = link + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        var l: Link = discoverLink(link)
+        val l: Link = discoverLink(link)
         bodyElements = bodyElements ++ List(l)
       }
       // text elements
@@ -591,7 +797,7 @@ class Discoverer() {
           textEl = textEl + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        var te: Text = discoverText(textEl)
+        val te: Text = discoverText(textEl)
         bodyElements = bodyElements ++ List(te)
       }
       // unordered list
@@ -605,7 +811,7 @@ class Discoverer() {
           list = list + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        var unorderedList: UnorderedList = discoverUnorderedList(list)
+        val unorderedList: UnorderedList = discoverUnorderedList(list)
         bodyElements = bodyElements ++ List(unorderedList)
       }
       // ordered list
@@ -619,7 +825,7 @@ class Discoverer() {
           list = list + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        var orderedList: OrderedList = discoverOrderedList(list)
+        val orderedList: OrderedList = discoverOrderedList(list)
         bodyElements = bodyElements ++ List(orderedList)
       }
       // table
@@ -633,8 +839,22 @@ class Discoverer() {
           table = table + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        var t: Table = discoverTable(table)
+        val t: Table = discoverTable(table)
         bodyElements = bodyElements ++ List(t)
+      }
+      // form
+      if (sub.startsWith("<div class=\"col-sm-8 text-left bg-content container\">\n<form action=")) {
+        var form: String = ""
+        while (!sub.startsWith("</form>\n</div>")) {
+          form = form + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        for (i <- 0 to 13) {
+          form = form + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
+        val f: Form = discoverForm(form)
+        bodyElements = bodyElements ++ List(f)
       }
     }
     val body: Body = Body(bodyElements)

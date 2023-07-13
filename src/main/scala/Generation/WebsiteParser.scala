@@ -1,11 +1,8 @@
-package Generator
+package Generation
 
 import scala.util.parsing.combinator._
-import Utils.Writer
 
-import java.io.File
 import scala.language.postfixOps
-import scala.sys.exit
 import scala.util.matching.Regex
 
 class WebsiteParser extends RegexParsers {
