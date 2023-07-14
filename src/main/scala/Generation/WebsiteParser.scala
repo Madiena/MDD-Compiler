@@ -5,6 +5,7 @@ import scala.util.parsing.combinator._
 import scala.language.postfixOps
 import scala.util.matching.Regex
 
+//noinspection ScalaUnusedSymbol
 class WebsiteParser extends RegexParsers {
 
   import Absyn._
@@ -124,7 +125,7 @@ class WebsiteParser extends RegexParsers {
   def form: Parser[BodyElement] =
     """\(Form:""".r ~ repsep(formElWLabel, ",") ~ """\)""".r ^^ { case s1 ~ feList ~ s2 => Form(feList); }
 
-  def formElWLabel: Parser[FormElEl] = label ~ """,""".r ~ formEl ^^ {
+  private def formElWLabel: Parser[FormElEl] = label ~ """,""".r ~ formEl ^^ {
     case la ~ s ~ el => FormElEl(la, el)
   }
 
@@ -135,9 +136,9 @@ class WebsiteParser extends RegexParsers {
   def input: Parser[InputEl] =
     """\(Input:""".r ~ formId ~ """,""" ~ placeHolder ~ """\)""".r ^^ { case s1 ~ fi ~ s2 ~ ph ~ s3 => InputEl(fi, ph) }
 
-  def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Placeholder(id) }
+  private def placeHolder: Parser[Placeholder] = """\(Placeholder:""".r ~ wrappedIdentifier ~ """\)""".r ^^ { case s1 ~ id ~ s2 => Placeholder(id) }
 
-  def formId: Parser[FormIdentifier] =
+  private def formId: Parser[FormIdentifier] =
     """\(Id:""".r ~ wrappedIdentifier ~ """\)""".r ^^ {
       case s1 ~ id ~ s2 => FormIdentifier(id)
     }
@@ -161,7 +162,7 @@ class WebsiteParser extends RegexParsers {
   private def identifier: Parser[String] =
     """(([/\-!.:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
 
-  def word: Parser[String] =
+  private def word: Parser[String] =
     """([_a-zA-Z01-9]+)""".r
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r

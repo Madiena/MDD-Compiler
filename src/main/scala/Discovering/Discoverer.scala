@@ -6,6 +6,7 @@ import Utils.{Reader, Writer}
 import scala.sys.exit
 
 
+//noinspection ScalaUnusedSymbol,DuplicatedCode
 class Discoverer() {
   var input: String = ""
   var failure: String = ""
@@ -166,7 +167,7 @@ class Discoverer() {
     }
   }
 
-  def discoverForm(input: String): Form = {
+  private def discoverForm(input: String): Form = {
     if (input.substring(0, 156) != "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n") {
       failure = failure + input + "\n"
       return null
@@ -219,7 +220,7 @@ class Discoverer() {
     form
   }
 
-  def discoverInput(input: String): InputEl = {
+  private def discoverInput(input: String): InputEl = {
     if (input.substring(0, 72) != "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"") {
       failure = failure + input + "\n"
       return null
@@ -246,7 +247,7 @@ class Discoverer() {
     inputEl
   }
 
-  def discoverTextarea(input: String): TextArea = {
+  private def discoverTextarea(input: String): TextArea = {
     if (input.substring(0, 42) != "<textarea style=\"margin-bottom: 50px\" id=\"") {
       failure = failure + input + "\n"
       return null
@@ -273,7 +274,7 @@ class Discoverer() {
     textArea
   }
 
-  def discoverLabel(input: String): Label = {
+  private def discoverLabel(input: String): Label = {
     if (input.substring(0, 12) != "<label for=\"") {
       failure = failure + input + "\n"
       return null
@@ -299,7 +300,7 @@ class Discoverer() {
     label
   }
 
-  def discoverTablehead(input: String): Tablehead = {
+  private def discoverTablehead(input: String): Tablehead = {
     if (input.substring(0, 24) != "<th class=\"text-center\">") {
       failure = failure + input + "\n"
       return null
@@ -314,7 +315,7 @@ class Discoverer() {
     tablehead
   }
 
-  def discoverTableRowData(input: String): Tablerowdata = {
+  private def discoverTableRowData(input: String): Tablerowdata = {
     if (input.substring(0, 5) != "<tr>\n") {
       failure = failure + input + "\n"
       return null
@@ -343,7 +344,7 @@ class Discoverer() {
     tablerowdata
   }
 
-  def discoverTabledata(input: String): Tabledata = {
+  private def discoverTabledata(input: String): Tabledata = {
     if (input.substring(0, 4) != "<td>") {
       failure = failure + input + "\n"
       return null
@@ -358,7 +359,7 @@ class Discoverer() {
     tabledata
   }
 
-  def discoverTableRowHead(input: String): Tablerowhead = {
+  private def discoverTableRowHead(input: String): Tablerowhead = {
     if (input.substring(0, 13) != "<thead>\n<tr>\n") {
       failure = failure + input + "\n"
       return null
@@ -387,7 +388,7 @@ class Discoverer() {
     tablerowhead
   }
 
-  def discoverTable(input: String): Table = {
+  private def discoverTable(input: String): Table = {
     if (input.substring(0, 69) != "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n") {
       failure = failure + input + "\n"
       return null
@@ -435,7 +436,7 @@ class Discoverer() {
     }
   }
 
-  def discoverListElement(input: String): ListElement = {
+  private def discoverListElement(input: String): ListElement = {
     if (input.substring(0, 4) != "<li>") {
       failure = failure + input + "\n"
       return null
@@ -450,7 +451,7 @@ class Discoverer() {
     listElement
   }
 
-  def discoverOrderedList(input: String): OrderedList = {
+  private def discoverOrderedList(input: String): OrderedList = {
     if (input.substring(0, 48) != "<div class=\"col-sm-8 text-left bg-content\">\n<ol>") {
       failure = failure + input + "\n"
       return null
@@ -471,7 +472,7 @@ class Discoverer() {
         listElement = listElement + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
-      var le: ListElement = discoverListElement(listElement)
+      val le: ListElement = discoverListElement(listElement)
       if (le != null) list = list ++ List(le)
       listElement = ""
     }
@@ -479,7 +480,7 @@ class Discoverer() {
     oList
   }
 
-  def discoverUnorderedList(input: String): UnorderedList = {
+  private def discoverUnorderedList(input: String): UnorderedList = {
     if (input.substring(0, 48) != "<div class=\"col-sm-8 text-left bg-content\">\n<ul>") {
       failure = failure + input + "\n"
       return null
@@ -500,7 +501,7 @@ class Discoverer() {
         listElement = listElement + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
-      var le: ListElement = discoverListElement(listElement)
+      val le: ListElement = discoverListElement(listElement)
       if (le != null) list = list ++ List(le)
       listElement = ""
     }
@@ -508,7 +509,7 @@ class Discoverer() {
     uList
   }
 
-  def discoverParagraph(input: String): Paragraph = {
+  private def discoverParagraph(input: String): Paragraph = {
     if (input.substring(0, 31) != "<p style=\"margin-bottom: 25px\">") {
       failure = failure + input + "\n"
       return null
@@ -523,7 +524,7 @@ class Discoverer() {
     paragraph
   }
 
-  def discoverHeadline(input: String): Headline = {
+  private def discoverHeadline(input: String): Headline = {
     if (input.substring(0, 2) != "<h") {
       failure = failure + input + "\n"
       return null
@@ -544,7 +545,7 @@ class Discoverer() {
     headline
   }
 
-  def discoverText(input: String): Text = {
+  private def discoverText(input: String): Text = {
     if (input.substring(0, 124) != "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n") {
       failure = failure + input + "\n"
       return null
@@ -571,7 +572,7 @@ class Discoverer() {
         }
         headline = headline + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        var hl: Headline = discoverHeadline(headline)
+        val hl: Headline = discoverHeadline(headline)
         if (hl != null) textEls = textEls ++ List(hl)
       } else if (sub.charAt(1) == 'p') {
         paragraph = paragraph + sub.charAt(0)
@@ -582,7 +583,7 @@ class Discoverer() {
         }
         paragraph = paragraph + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        var pg: Paragraph = discoverParagraph(paragraph)
+        val pg: Paragraph = discoverParagraph(paragraph)
         if (pg != null) textEls = textEls ++ List(pg)
       }
       headline = ""
@@ -592,7 +593,7 @@ class Discoverer() {
     text
   }
 
-  def discoverLink(input: String): Link = {
+  private def discoverLink(input: String): Link = {
     if (input.substring(0, 9) != "<a href=\"") {
       failure = failure + input + "\n"
       return null
@@ -619,7 +620,7 @@ class Discoverer() {
     link
   }
 
-  def discoverNavlink(input: String): NavLink = {
+  private def discoverNavlink(input: String): NavLink = {
     if (input.substring(0, 13) != "<li><a href=\"") {
       failure = failure + input + "\n"
       return null
@@ -646,7 +647,7 @@ class Discoverer() {
     link
   }
 
-  def discoverNavbarlist(input: String): NavbarList = {
+  private def discoverNavbarlist(input: String): NavbarList = {
     if (input.substring(0, 72) != "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">") {
       failure = failure + input + "\n"
       return null
@@ -687,7 +688,7 @@ class Discoverer() {
     navbarList
   }
 
-  def discoverNavbar(input: String): Navbar = {
+  private def discoverNavbar(input: String): Navbar = {
     if (input.substring(0, 126) != "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n<ul class=\"nav navbar-nav\">\n") {
       failure = failure + input + "\n"
       return null
@@ -727,7 +728,7 @@ class Discoverer() {
       if (navLink.nonEmpty) {
         navLink = navLink + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        var nl: NavLink = discoverNavlink(navLink)
+        val nl: NavLink = discoverNavlink(navLink)
         navellist = navellist ++ List(nl)
       } else {
         while (!sub.startsWith("</li>\n</ul>\n</li>\n")) {
@@ -738,7 +739,7 @@ class Discoverer() {
           navbarList = navbarList + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        var nlist: NavbarList = discoverNavbarlist(navbarList)
+        val nlist: NavbarList = discoverNavbarlist(navbarList)
         if (nlist != null) navellist = navellist ++ List(nlist)
       }
       navbarList = ""
@@ -749,7 +750,7 @@ class Discoverer() {
     navbar
   }
 
-  def discoverImage(input: String): Image = {
+  private def discoverImage(input: String): Image = {
     if (input.substring(0, 10) != "<img src=\"") {
       failure = failure + input + "\n"
       return null
@@ -764,7 +765,7 @@ class Discoverer() {
     image
   }
 
-  def discoverFooter(input: String): Footer = {
+  private def discoverFooter(input: String): Footer = {
     if (input.substring(0, 55) != "<footer class=\"container-fluid text-center\">\n<ul>\n<li>\n") {
       failure = failure + input + "\n"
       return null
@@ -791,7 +792,7 @@ class Discoverer() {
     footer
   }
 
-  def discoverBody(input: String): Body = {
+  private def discoverBody(input: String): Body = {
     if (input.substring(0, 7) != "<body>\n") {
       failure = failure + input + "\n"
       return null
@@ -907,7 +908,7 @@ class Discoverer() {
     body
   }
 
-  def discoverHeader(input: String): Header = {
+  private def discoverHeader(input: String): Header = {
     if (input.substring(0, 67) != "<header>\n<div class=\"jumbotron\">\n<div class=\"container text-left\">\n") {
       failure = failure + input + "\n"
       return null
@@ -941,7 +942,7 @@ class Discoverer() {
     }
   }
 
-  def discoverPage(input: String): Page = {
+  private def discoverPage(input: String): Page = {
     if (input.substring(0, 313) != "<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"misc/bootstrap.css\">\n<link rel=\"stylesheet\" href=\"misc/my.css\">\n<script src=\"misc/jquery.js\"></script>\n<script src=\"misc/bootstrap.js\"></script>\n</head>\n") {
       failure = failure + input + "\n"
       return null
