@@ -10,11 +10,8 @@ class Discoverer() {
   var input: String = ""
   var failure: String = ""
 
-  def readInvalid(): Unit = {
-
-  }
-
   def discoverWebsite(): Website = {
+    val writer: Writer = new Writer()
     val reader: Reader = new Reader()
     var pages: List[Page] = List()
     input = reader.readFile()
@@ -36,7 +33,7 @@ class Discoverer() {
       }
     }
     val website: Website = Website(pages)
-    println(website.toString + "\n")
+    writer.writeFailure(failure)
     website
   }
 
@@ -130,25 +127,39 @@ class Discoverer() {
       o
     } // Navlink
     else if (input.contains("<li><a href")) {
-      return discoverNavlink(input)
+      o = discoverNavlink(input)
+      writer.writeFailure(failure)
+      o
     } // ListElement
     else if (input.contains("<li>")) {
-      return discoverListElement(input)
+      o = discoverListElement(input)
+      writer.writeFailure(failure)
+      o
     } // Text
     else if (input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<h") || input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<p")) {
-      return discoverText(input)
+      o = discoverText(input)
+      writer.writeFailure(failure)
+      o
     } // Paragraph
     else if (input.contains("<p ")) {
-      return discoverParagraph(input)
+      o = discoverParagraph(input)
+      writer.writeFailure(failure)
+      o
     } // Headline
     else if (input.contains("<h")) {
-      return discoverHeadline(input)
+      o = discoverHeadline(input)
+      writer.writeFailure(failure)
+      o
     } // Link
     else if (input.contains("<a href")) {
-      return discoverLink(input)
+      o = discoverLink(input)
+      writer.writeFailure(failure)
+      o
     } // Image
     else if (input.contains("<img ")) {
-      return discoverImage(input)
+      o = discoverImage(input)
+      writer.writeFailure(failure)
+      o
     } else {
       println("Error: Given input doesn't match any possible language constructs.")
       exit(99)
@@ -189,19 +200,22 @@ class Discoverer() {
       }
       if (formel.startsWith("<input")) {
         val input = discoverInput(formel)
-        val f = FormElEl(l, input)
-        formels = formels ++ List(f)
+        if (l != null && input != null) {
+          val f = FormElEl(l, input)
+          formels = formels ++ List(f)
+        }
       } else if (formel.startsWith("<textarea")) {
         val textArea = discoverTextarea(formel)
-        val f = FormElEl(l, textArea)
-        formels = formels ++ List(f)
+        if (l != null && textArea != null) {
+          val f = FormElEl(l, textArea)
+          formels = formels ++ List(f)
+        }
       }
       label = ""
       formel = ""
       sub = sub.replace(sub, sub.substring(1))
     }
     val form = Form(formels)
-    println(form + "\n")
     form
   }
 
@@ -229,7 +243,6 @@ class Discoverer() {
     val formIdentifier: FormIdentifier = FormIdentifier(id)
     val ph: Placeholder = Placeholder(placeholder)
     val inputEl: InputEl = InputEl(formIdentifier, ph)
-    println(inputEl.toString + "\n")
     inputEl
   }
 
@@ -257,7 +270,6 @@ class Discoverer() {
     val formIdentifier: FormIdentifier = FormIdentifier(id)
     val ph: Placeholder = Placeholder(placeholder)
     val textArea: TextArea = TextArea(formIdentifier, ph)
-    println(textArea + "\n")
     textArea
   }
 
@@ -284,7 +296,6 @@ class Discoverer() {
     }
     val formIdentifier: FormIdentifier = FormIdentifier(id)
     val label: Label = Label(formIdentifier, in)
-    println(label + "\n")
     label
   }
 
@@ -300,7 +311,6 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val tablehead: Tablehead = Tablehead(id)
-    println(tablehead + "\n")
     tablehead
   }
 
@@ -326,11 +336,10 @@ class Discoverer() {
         sub = sub.replace(sub, sub.substring(1))
       }
       val td: Tabledata = discoverTabledata(tabledata)
-      tabledatas = tabledatas ++ List(td)
+      if (td != null) tabledatas = tabledatas ++ List(td)
       tabledata = ""
     }
     val tablerowdata: Tablerowdata = Tablerowdata(tabledatas)
-    println(tablerowdata + "\n")
     tablerowdata
   }
 
@@ -346,7 +355,6 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val tabledata: Tabledata = Tabledata(id)
-    println(tabledata)
     tabledata
   }
 
@@ -372,11 +380,10 @@ class Discoverer() {
         sub = sub.replace(sub, sub.substring(1))
       }
       val th: Tablehead = discoverTablehead(tablehead)
-      tableheads = tableheads ++ List(th)
+      if (th != null) tableheads = tableheads ++ List(th)
       tablehead = ""
     }
     val tablerowhead: Tablerowhead = Tablerowhead(tableheads)
-    println(tablerowhead + "\n")
     tablerowhead
   }
 
@@ -415,13 +422,17 @@ class Discoverer() {
         tablerowdata = tablerowdata + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
       }
-      var trd: Tablerowdata = discoverTableRowData(tablerowdata)
-      tableRowDatas = tableRowDatas ++ List(trd)
+      val trd: Tablerowdata = discoverTableRowData(tablerowdata)
+      if (trd != null) tableRowDatas = tableRowDatas ++ List(trd)
       tablerowdata = ""
     }
-    val table: Table = Table(tablerowhead, tableRowDatas)
-    println(table + "\n")
-    table
+    if (tablerowhead != null) {
+      val table: Table = Table(tablerowhead, tableRowDatas)
+      table
+    } else {
+      failure = failure + input + "\n"
+      null
+    }
   }
 
   def discoverListElement(input: String): ListElement = {
@@ -436,7 +447,6 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val listElement: ListElement = ListElement(id)
-    print(listElement + "\n")
     listElement
   }
 
@@ -462,11 +472,10 @@ class Discoverer() {
         sub = sub.replace(sub, sub.substring(1))
       }
       var le: ListElement = discoverListElement(listElement)
-      list = list ++ List(le)
+      if (le != null) list = list ++ List(le)
       listElement = ""
     }
     val oList: OrderedList = OrderedList(list)
-    println(oList + "\n")
     oList
   }
 
@@ -492,11 +501,10 @@ class Discoverer() {
         sub = sub.replace(sub, sub.substring(1))
       }
       var le: ListElement = discoverListElement(listElement)
-      list = list ++ List(le)
+      if (le != null) list = list ++ List(le)
       listElement = ""
     }
     val uList: UnorderedList = UnorderedList(list)
-    println(uList + "\n")
     uList
   }
 
@@ -512,7 +520,6 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val paragraph: Paragraph = Paragraph(id)
-    println(paragraph + "\n")
     paragraph
   }
 
@@ -534,7 +541,6 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val headline: Headline = Headline(id, num.asDigit)
-    println(headline + "\n")
     headline
   }
 
@@ -566,7 +572,7 @@ class Discoverer() {
         headline = headline + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
         var hl: Headline = discoverHeadline(headline)
-        textEls = textEls ++ List(hl)
+        if (hl != null) textEls = textEls ++ List(hl)
       } else if (sub.charAt(1) == 'p') {
         paragraph = paragraph + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
@@ -577,13 +583,12 @@ class Discoverer() {
         paragraph = paragraph + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
         var pg: Paragraph = discoverParagraph(paragraph)
-        textEls = textEls ++ List(pg)
+        if (pg != null) textEls = textEls ++ List(pg)
       }
       headline = ""
       paragraph = ""
     }
     val text: Text = Text(textEls)
-    println(text + "\n")
     text
   }
 
@@ -611,7 +616,6 @@ class Discoverer() {
     val des: Destination = Destination(destination)
     val id: LinkIdentifier = LinkIdentifier(identifier)
     val link: Link = Link(des, id)
-    println(link + "\n")
     link
   }
 
@@ -639,7 +643,6 @@ class Discoverer() {
     val des: Destination = Destination(destination)
     val id: LinkIdentifier = LinkIdentifier(identifier)
     val link: NavLink = NavLink(des, id)
-    println(link + "\n")
     link
   }
 
@@ -676,12 +679,11 @@ class Discoverer() {
       }
       navlink = navlink + sub.charAt(0)
       sub = sub.replace(sub, sub.substring(1))
-      var nl: NavLink = discoverNavlink(navlink)
-      navlinks = navlinks ++ List(nl)
+      val nl: NavLink = discoverNavlink(navlink)
+      if (nl != null) navlinks = navlinks ++ List(nl)
       navlink = ""
     }
     val navbarList: NavbarList = NavbarList(id, navlinks)
-    println(navbarList + "\n")
     navbarList
   }
 
@@ -737,14 +739,13 @@ class Discoverer() {
           sub = sub.replace(sub, sub.substring(1))
         }
         var nlist: NavbarList = discoverNavbarlist(navbarList)
-        navellist = navellist ++ List(nlist)
+        if (nlist != null) navellist = navellist ++ List(nlist)
       }
       navbarList = ""
       navLink = ""
       both = ""
     }
-    var navbar: Navbar = Navbar(navellist)
-    println(navbar + "\n")
+    val navbar: Navbar = Navbar(navellist)
     navbar
   }
 
@@ -760,7 +761,6 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val image: Image = Image(id)
-    println(image + "\n")
     image
   }
 
@@ -784,11 +784,10 @@ class Discoverer() {
       }
       sub = sub.replace(sub, sub.substring(10))
       val l: Link = discoverLink(link)
-      links = links ++ List(l)
+      if (l != null) links = links ++ List(l)
       link = ""
     }
     val footer: Footer = Footer(links)
-    println(footer + "\n")
     footer
   }
 
@@ -816,7 +815,7 @@ class Discoverer() {
         image = image + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
         val img: Image = discoverImage(image)
-        bodyElements = bodyElements ++ List(img)
+        if (img != null) bodyElements = bodyElements ++ List(img)
       }
       // link
       else if (sub.startsWith("<a href")) {
@@ -828,7 +827,7 @@ class Discoverer() {
         link = link + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
         val l: Link = discoverLink(link)
-        bodyElements = bodyElements ++ List(l)
+        if (l != null) bodyElements = bodyElements ++ List(l)
       }
       // text elements
       else if (sub.startsWith("<div class=\"container-fluid text-center")) {
@@ -842,7 +841,7 @@ class Discoverer() {
           sub = sub.replace(sub, sub.substring(1))
         }
         val te: Text = discoverText(textEl)
-        bodyElements = bodyElements ++ List(te)
+        if (te != null) bodyElements = bodyElements ++ List(te)
       }
       // unordered list
       else if (sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ul>")) {
@@ -856,7 +855,7 @@ class Discoverer() {
           sub = sub.replace(sub, sub.substring(1))
         }
         val unorderedList: UnorderedList = discoverUnorderedList(list)
-        bodyElements = bodyElements ++ List(unorderedList)
+        if (unorderedList != null) bodyElements = bodyElements ++ List(unorderedList)
       }
       // ordered list
       else if (sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ol>")) {
@@ -870,7 +869,7 @@ class Discoverer() {
           sub = sub.replace(sub, sub.substring(1))
         }
         val orderedList: OrderedList = discoverOrderedList(list)
-        bodyElements = bodyElements ++ List(orderedList)
+        if (orderedList != null) bodyElements = bodyElements ++ List(orderedList)
       }
       // table
       else if (sub.startsWith("<div class=\"col-sm-10 text-center bg-content\">\n<table class=")) {
@@ -884,7 +883,7 @@ class Discoverer() {
           sub = sub.replace(sub, sub.substring(1))
         }
         val t: Table = discoverTable(table)
-        bodyElements = bodyElements ++ List(t)
+        if (t != null) bodyElements = bodyElements ++ List(t)
       }
       // form
       else if (sub.startsWith("<div class=\"col-sm-8 text-left bg-content container\">\n<form action=")) {
@@ -898,14 +897,13 @@ class Discoverer() {
           sub = sub.replace(sub, sub.substring(1))
         }
         val f: Form = discoverForm(form)
-        bodyElements = bodyElements ++ List(f)
+        if (f != null) bodyElements = bodyElements ++ List(f)
       } else {
         failure = failure + input + "\n"
         return null
       }
     }
     val body: Body = Body(bodyElements)
-    println(body + "\n")
     body
   }
 
@@ -934,9 +932,13 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val nav: Navbar = discoverNavbar(navbar)
-    val header: Header = Header(img, nav)
-    println(header + "\n")
-    header
+    if (img != null && navbar != null) {
+      val header: Header = Header(img, nav)
+      header
+    } else {
+      failure = failure + input + "\n"
+      null
+    }
   }
 
   def discoverPage(input: String): Page = {
@@ -975,9 +977,12 @@ class Discoverer() {
       sub = sub.replace(sub, sub.substring(1))
     }
     val f: Footer = discoverFooter(footer)
-    val page: Page = Page(h, b, f)
-    println(page + "\n")
-    page
+    if (h != null && b != null && f != null) {
+      val page: Page = Page(h, b, f)
+      page
+    } else {
+      failure = failure + input + "\n"
+      null
+    }
   }
-
 }
