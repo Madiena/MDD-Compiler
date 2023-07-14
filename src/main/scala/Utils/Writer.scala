@@ -8,7 +8,16 @@ class Writer {
     if (!file.createNewFile()) {
       throw new RuntimeException("Creating new file didn't work!")
     }
+    val writer = new PrintWriter(file);
+    writer.write(content)
+    writer.close()
+  }
 
+  def writeFailure(content: String): Unit = {
+    val file: File = new File("failure.txt")
+    if (file.exists()) {
+      file.delete()
+    }
     val writer = new PrintWriter(file);
     writer.write(content)
     writer.close()

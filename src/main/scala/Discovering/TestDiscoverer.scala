@@ -3,6 +3,7 @@ package Discovering
 object TestDiscoverer extends Discoverer {
   def main(args: Array[String]): Unit = {
     var s: String = ""
+    var o: Object = new Object
     // Test Input
     input = "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"fname\" placeholder=\"Vorname\">"
     s = discover(input).toString
@@ -133,7 +134,7 @@ object TestDiscoverer extends Discoverer {
     s = discover(input).toString
     assert(s == "(Body: (Text: (Headline 1: (Betriebssysteme)), (Headline 4: (Kurzbeschreibung:)), (Paragraph: (In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.)), (Headline 4: (Studiengang:)), (Paragraph: (Informatik B.Sc., Ingenieur-Informatik B.Sc.)), (Headline 4: (Nächste Veranstaltung:)), (Paragraph: (Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr))))")
 
-    // Test Body with link
+    // Test Body with image and link
     input = "<body>\n<img src=\"image.png\">\n<a href=\"index.html\">Startseite</a>\n</body>\n"
     s = discover(input).toString
     assert(s == "(Body: (Image:(image.png)), (Link: (Startseite), (index.html)))")
@@ -176,9 +177,10 @@ object TestDiscoverer extends Discoverer {
     s = discoverWebsite().toString
     assert(s == "Website: (Page: (Header: (Image:(misc/Logo_THM_MNI.png)), (Navbar: (Link: (Startseite), (index.html)), (Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html))), (Link: (Literaturempfehlungen), (literaturempfehlungen.html)), (Link: (Stundenplan), (stundenplan.html)))), (Body: (Text: (Headline 1: (Betriebssysteme)), (Headline 4: (Kurzbeschreibung:)), (Paragraph: (In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.)), (Headline 4: (Studiengang:)), (Paragraph: (Informatik B.Sc., Ingenieur-Informatik B.Sc.)), (Headline 4: (Nächste Veranstaltung:)), (Paragraph: (Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr)))), (Footer: (Link: (Kontakt), (kontakt.html)), (Link: (Impressum), (impressum.html)))), (Page: (Header: (Image:(misc/Logo_THM_MNI.png)), (Navbar: (Link: (Startseite), (index.html)), (Dropdown: (Veranstaltungen), (Link: (Algorithmen), (algorithmen.html)), (Link: (Betriebssysteme), (betriebssysteme.html)), (Link: (Computergrafik), (computergrafik.html)), (Link: (Archiv), (archiv.html))), (Link: (Literaturempfehlungen), (literaturempfehlungen.html)), (Link: (Stundenplan), (stundenplan.html)))), (Body: (Text: (Headline 1: (Betriebssysteme)), (Headline 4: (Kurzbeschreibung:)), (Paragraph: (In der Veranstaltung werden Grundlagen der Rechnerarchitektur sowie Architektur, Funktionsweise und Programmierschnittstellen moderner Betriebssysteme behandelt und in praktischen Aufgaben exemplarisch vertieft.)), (Headline 4: (Studiengang:)), (Paragraph: (Informatik B.Sc., Ingenieur-Informatik B.Sc.)), (Headline 4: (Nächste Veranstaltung:)), (Paragraph: (Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr)))), (Footer: (Link: (Kontakt), (kontakt.html)), (Link: (Impressum), (impressum.html))))")
 
-
-    // Test incorrect Form -- This test is supposed to fail.
-
+    // Test discovering of partial incorrect input
+    input = "<body>\n<img src=\"image.png\">\n<ahref=\"index.html\">Startseite</a>\n</body>\n"
+    o = discover(input)
+    assert(o == null)
   }
 
 
