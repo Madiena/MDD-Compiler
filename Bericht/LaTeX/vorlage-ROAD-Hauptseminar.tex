@@ -1,0 +1,156 @@
+ % Angabe zu Blattgröße, Schriftgröße, Hinzufügen des Bildverzeichnis und Quellverzeichnis als Punkt im Inhaltsverzeichnis, einseitiger Druck
+\documentclass[
+a4paper,12pt,listof=toc,bibliography=totoc,twoside, titlepage, headsepline,headings=optiontohead,parskip=half,
+BCOR=8.25mm,         % Bindekorrektur
+DIV=12,              % Satzspiegel
+headsepline=on,      % Trennlinie Kolumnentitel
+]{scrartcl}	
+\include{settings.tex}
+\newtheorem{condition}{Bedingung}[subsection]
+\newtheorem{definition}{Definition}[subsection]
+\theorembodyfont{\upshape}
+\newmdtheoremenv[
+hidealllines=true,
+leftline=true,
+innertopmargin=0pt,
+innerbottommargin=0pt,
+linewidth=4pt,
+linecolor=gray!40,
+innerrightmargin=0pt,
+innertopmargin=-6pt,
+]{example}{Beispiel}[subsection]
+
+
+
+\title{Bachelorarbeit}
+\subtitle{Erweiterung von Datalog um die Berechnung von Rängen}
+\author{Madelaine Hestermann}
+\mail{madelaine.hestermann@mni.thm.de}
+\publishers{Betrieb:\\INFORM GmbH\\Betreuer:\\Dimitri Bohlender\\Dozent:\\Michael Elberfeld}
+
+
+% % % % % % % % % % % % % %
+% % % Dokument Beginn % % %
+% % % % % % % % % % % % % %
+\begin{document}
+
+%% Titelseite
+\begin{titlepage}
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{img/mni-logo}
+		
+		\vspace{3cm}	
+		
+		\huge\textbf{\sffamily Erweiterung von Datalog um die Berechnung von Rängen}
+		
+		\vspace{1cm}	
+		
+		\Large\textbf{\sffamily Bachelorarbeit}
+		
+		\normalsize
+		\vspace{0.5cm}	
+		
+		zur Erlangung des akademischen Grades
+		
+		Bachelor of Science (B.\,Sc.)
+		
+		vorgelegt dem\\
+		\vspace{0.2cm}
+		Fachbereich Mathematik, Naturwissenschaften und Informatik\\
+		\vspace{0.2cm}
+		der Technischen Hochschule Mittelhessen\\
+		
+		von \\[1cm]	
+		
+		\textbf{Madelaine Tatjana Hestermann}\\ [.5cm] 
+		im März 2023
+	\end{center}
+	\vfill
+	\begin{tabular}{ll}
+		Referent: & Prof. Dr. Michael Elberfeld\\ 
+		Korreferent: & Dr. Dimitri Bohlender\\ 
+	\end{tabular}
+\end{titlepage}
+\cleardoubleemptypage
+
+
+%% Erklärung
+\pagestyle{empty}
+\begin{quote}
+	\vspace*{4cm}
+	
+	\begin{center}
+		\textbf{\Large\sffamily Eidesstattliche Erklärung}
+	\end{center}
+	\vspace{0.5cm}
+
+	Hiermit versichere ich, die vorliegende Arbeit selbstständig und unter
+	ausschließlicher Verwendung der angegebenen Literatur und Hilfsmittel
+	erstellt zu haben.
+	
+	\vspace{0.3cm}
+	Die Arbeit wurde bisher in gleicher oder ähnlicher Form keiner anderen
+	Prü\-fungs\-be\-hör\-de vorgelegt und auch nicht veröffentlicht.
+	\vspace{3em}
+	
+	Gießen, 28. Februar 2023
+\end{quote}
+\cleardoubleemptypage
+
+%% Zusammenfassung
+\pagestyle{empty}
+\begin{quote}
+	\begin{center}
+		\textbf{\Large\sffamily Abstract}
+		\vspace{0.3cm}
+	\end{center}
+	Deklarative Programmiersprachen sind in der Lage durch Abstraktion der Kontroll- und Datenflüsse eines Programms auf komplexe technische Details zu verzichten. Dies kann Personen ohne Programmierkenntnisse dazu befähigen entsprechenden Programmcode besser zu verstehen. Zudem sind insbesondere logische Programmiersprachen gut geeignet Applikationen zu implementieren, deren Domäne aus Regeln, wie beispielsweise gesetzlichen Bestimmungen, bestehen. Aufgrund dessen wurde für die Applikation WorkforcePlus, eine Applikation zur Organisation der Personaleinsatzplanung in Unternehmen, der INFORM GmbH eine eigene domänenspezifische Sprache entwickelt. Die Sprache Roxx ist eine solche logische Sprache und soll die genannten Vorteile des Paradigmas implementieren.
+	
+	\vspace{0.1cm}
+	Gegenstand dieser Bachelorarbeit ist die Erweiterung eines speziellen Prädikats der Sprache Roxx, dem Partitionsprädikat. Dabei wird der bisherige Stand der theoretischen Arbeit zur Programmiersprache Datalog, der Roxx als semantische Grundlage dient, skizziert. Anschließend wird das Partitionsprädikat im Kontext von Datalog definiert. Zudem wird der Begriff der domänenspezifischen Sprache erläutert und in Zusammenhang mit Roxx erklärt. Außerdem wird eine Implementierung des Partitionsprädikats vorgestellt. Im Fokus liegen dabei die Erweiterung um die Mehrfachsortierung des Partitionsprädikats und eine neu implementierte Partitionsfunktion, welche im Rahmen dieser Bachelorarbeit entwickelt wurden. Abschließend folgt ein Ausblick inwiefern Roxx zusätzlich erweitert werden kann.
+	
+\end{quote}
+
+\cleardoubleemptypage
+
+%\begin{quote}
+	
+%	\begin{center}
+%		\vspace*{6cm}
+%			\textbf{\Large\sffamily Danksagung}
+%		\vspace{0.3cm}
+	
+%	\end{center}
+%\begin{center}
+%	Danke an Frank, wegen dem alles begonnen hat.
+%\end{center}
+%\end{quote}
+	
+%	\cleardoubleemptypage
+	%Inhaltsverzeichnis
+	\pagenumbering{roman}
+	\tableofcontents
+	\clearpage
+	
+	%Inhalt
+	\pagenumbering{arabic}
+	\pagestyle{headings}
+	\setcounter{page}{1} %Seitenzähler auf 1 setzen, da Inhaltsverzeichnis sonst als Seite 1 zählt
+	\input{chapter/einleitung}
+	\input{chapter/hauptteil}
+	\include{chapter/ende}
+	\clearpage
+	
+	%Römische Seitennummerierung
+	\pagenumbering{Roman}
+	\setcounter{page}{1}
+	
+	% ================================
+	% Falls nicht verwendet bitte entsprechend auskommentieren
+	% ================================
+	
+	%Literaturverzeichnis
+	\bibliographystyle{literature/bibtex/IEEEtran}	
+	\bibliography{literature/Thesis.bib}
+	
+\end{document}
