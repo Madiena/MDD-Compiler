@@ -1,5 +1,8 @@
-import Generation.Absyn.Website
+import Generation.Generator
 
-case class Main() {
-  val genWebsite: Website = new Website()
+object Main {
+  val gen = new Generator
+  def main(args: Array[String]): Unit = {
+    gen.generateWebsite()
+  }
 }

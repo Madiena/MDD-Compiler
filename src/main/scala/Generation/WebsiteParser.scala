@@ -5,7 +5,6 @@ import scala.util.parsing.combinator._
 import scala.language.postfixOps
 import scala.util.matching.Regex
 
-//noinspection ScalaUnusedSymbol
 class WebsiteParser extends RegexParsers {
 
   import Absyn._
@@ -67,10 +66,14 @@ class WebsiteParser extends RegexParsers {
       case s1 ~ s2 ~ li ~ s3 ~ des ~ s4 => Link(des, li)
     }
 
-  def destination: Parser[Destination] =
-    """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^ {
-      case s1 ~ id ~ s2 ~ s3 => Destination(id + s2)
-    }
+  def destination: Parser[Destination] = subpage | mail
+
+  def subpage: Parser[Destination] = """\(""".r ~ word ~ """\.html""".r ~ """\)""".r ^^  {
+  case s1 ~ id ~ s2 ~ s3 => Destination(id + s2) }
+
+  def mail: Parser[Destination] = """\(""".r ~ """mailto:""".r ~ identifier ~ """\)""".r ^^ {
+    case s1 ~ s2 ~ id ~ s3 => Destination(s2 + id)
+  }
 
   def text: Parser[Text] =
     """\(Text: """.r ~ repsep(textEl, ",") ~ """\)""".r ^^ {
@@ -160,10 +163,10 @@ class WebsiteParser extends RegexParsers {
     """(([/\-!:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
 
   private def identifier: Parser[String] =
-    """(([/\-!.:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
+    """(([/\-!.:,;'@ß&_a-zA-Z01-9öäü\d\s])+)""".r
 
   private def word: Parser[String] =
-    """([_a-zA-Z01-9]+)""".r
+    """([_öäüßa-zA-Z01-9]+)""".r
 
   override protected val whiteSpace: Regex = """\s*|//.*""".r
 

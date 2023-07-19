@@ -32,7 +32,7 @@ object Absyn {
           el match {
             case form: Form =>
               for (ele <- form.formEls) {
-                if (ele.label.toString != ele.formEl.id.toString) {
+                if (ele.label.id.toString != ele.formEl.id.toString) {
                   return failure("Error: Label and form identifier must match!\n", test)
                 }
               }
@@ -122,7 +122,7 @@ object Absyn {
       htmlBuilder.append(el.toHtml)
     }
 
-    def toHtml: String = "<body>\n" + htmlBuilder.toString() + "</body>\n"
+    def toHtml: String = "<body>\n<div class=\"container-fluid text-center\">\n<div class=\"row content\">\n\n<div class=\"col-sm-2 sidenav\">\n\n</div>\n\n<div class=\"col-sm-8 text-left bg-content container\">" + htmlBuilder.toString() + "</div></div></div></body>\n"
 
     override def toString: String = "(Body: " + bodyElements.mkString(", ") + ")"
   }
@@ -160,7 +160,7 @@ object Absyn {
   }
 
   case class Link(destination: Destination, identifier: LinkIdentifier) extends BodyElement {
-    override def toHtml: String = "<a href=\"" + destination + "\">" + identifier + "</a>\n"
+    override def toHtml: String = "<div><a href=\"" + destination + "\">" + identifier + "</a>\n</div>\n"
 
     override def toString: String = "(Link: (" + identifier + "), (" + destination + "))"
   }
@@ -197,7 +197,7 @@ object Absyn {
       htmlBuilder.append(el.toHtml)
     }
 
-    override def toHtml: String = "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n" + htmlBuilder.toString() + "</div>\n</div>\n"
+    override def toHtml: String = htmlBuilder.toString()
 
     override def toString: String = "(Text: " + textel.mkString(", ") + ")"
   }

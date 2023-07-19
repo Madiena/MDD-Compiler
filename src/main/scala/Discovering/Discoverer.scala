@@ -137,7 +137,7 @@ class Discoverer() {
       writer.writeFailure(failure)
       o
     } // Text
-    else if (input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<h") || input.contains("<div class=\"col-sm-8 text-left bg-content\">\n<p")) {
+    else if (input.contains("<h") && input.contains("<p")) {
       o = discoverText(input)
       writer.writeFailure(failure)
       o
@@ -546,20 +546,11 @@ class Discoverer() {
   }
 
   private def discoverText(input: String): Text = {
-    if (input.substring(0, 124) != "<div class=\"container-fluid text-center\">\n<div class=\"col-sm-2 sidenav\">\n</div>\n<div class=\"col-sm-8 text-left bg-content\">\n") {
-      failure = failure + input + "\n"
-      return null
-    }
-    var sub: String = input.replace(input, input.substring(124))
+    var sub = input
     var headline: String = ""
     var paragraph: String = ""
     var textEls: List[TextEl] = List()
-    val end: String = "</div>\n</div>\n"
-    if (input.substring(input.length - 14, input.length) != end) {
-      failure = failure + input + "\n"
-      return null
-    }
-    while (sub != end) {
+    while (sub.nonEmpty) {
       if (sub.charAt(0) == '\n') {
         sub = sub.replace(sub, sub.substring(1))
       }
@@ -594,11 +585,11 @@ class Discoverer() {
   }
 
   private def discoverLink(input: String): Link = {
-    if (input.substring(0, 9) != "<a href=\"") {
+    if (input.substring(0, 14) != "<div><a href=\"") {
       failure = failure + input + "\n"
       return null
     }
-    var sub: String = input.replace(input, input.substring(9))
+    var sub: String = input.replace(input, input.substring(14))
     var destination: String = ""
     var identifier: String = ""
     while (sub.charAt(0) != '"') {
@@ -793,15 +784,15 @@ class Discoverer() {
   }
 
   private def discoverBody(input: String): Body = {
-    if (input.substring(0, 7) != "<body>\n") {
+    if (input.substring(0, 169) != "<body>\n<div class=\"container-fluid text-center\">\n<div class=\"row content\">\n\n<div class=\"col-sm-2 sidenav\">\n\n</div>\n\n<div class=\"col-sm-8 text-left bg-content container\">") {
       failure = failure + input + "\n"
       return null
     }
-    var sub: String = input.replace(input, input.substring(7))
+    var sub: String = input.replace(input, input.substring(169))
     var bodyElements: List[BodyElement] = List()
-    val end: String = "</body>\n"
+    val end: String = "</div></div></div></body>\n"
 
-    if (input.substring(input.length - 8, input.length) != "</body>\n") {
+    if (input.substring(input.length - 26, input.length) != "</div></div></div></body>\n") {
       failure = failure + input + "\n"
       return null
     }
@@ -819,7 +810,7 @@ class Discoverer() {
         if (img != null) bodyElements = bodyElements ++ List(img)
       }
       // link
-      else if (sub.startsWith("<a href")) {
+      else if (sub.startsWith("<div><a href")) {
         var link: String = ""
         while (sub.charAt(0) != '\n') {
           link = link + sub.charAt(0)
@@ -831,13 +822,15 @@ class Discoverer() {
         if (l != null) bodyElements = bodyElements ++ List(l)
       }
       // text elements
-      else if (sub.startsWith("<div class=\"container-fluid text-center")) {
+      else if (sub.startsWith("<h") || sub.startsWith("<p")) {
         var textEl: String = ""
-        while (!sub.startsWith("</div>\n</div>\n")) {
-          textEl = textEl + sub.charAt(0)
-          sub = sub.replace(sub, sub.substring(1))
-        }
-        for (i <- 0 to 13) {
+        textEl = textEl + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
+        while (!(sub.startsWith("<img") && sub.startsWith("<a href") ||
+          sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ul>") ||
+          sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ol>") ||
+          sub.startsWith("<div class=\"col-sm-10 text-center bg-content\">\n<table class=") ||
+          sub.startsWith("<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"")) && sub != end) {
           textEl = textEl + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
