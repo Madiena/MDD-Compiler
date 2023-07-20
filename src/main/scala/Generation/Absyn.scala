@@ -52,6 +52,7 @@ object Absyn {
                 if (hs != rs) {
                   return failure("Error: All table rows must have the same number as table columns!\n", test)
                 }
+                rs = 0
               }
               if (table.tablerowdatas.isEmpty) {
                 return failure("Error: At least one row of table heads and one row of table datas must be provided within a table.\n", test)

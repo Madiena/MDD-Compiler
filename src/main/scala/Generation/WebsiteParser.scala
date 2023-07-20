@@ -38,9 +38,11 @@ class WebsiteParser extends RegexParsers {
     }
 
   def image: Parser[Image] =
-    """\(Image:\(""".r ~ imageIdentifier ~ ("""[.]jpg""".r | """[.]png""".r) ~ """\)\)""".r ^^ {
+    imageString ~ imageIdentifier ~ ("""[.]jpg""".r | """[.]png""".r) ~ """\)\)""".r ^^ {
       case s1 ~ id ~ s2 ~ s3 => Image(id + s2)
     }
+
+  def imageString = """\(Image: \(""".r | """\(Image:\(""".r
 
   def navbar: Parser[Navbar] =
     """\(Navbar:""".r ~ repsep(navbarEl, ",") ~ """\)""".r ^^ {
@@ -160,10 +162,10 @@ class WebsiteParser extends RegexParsers {
     }
 
   private def imageIdentifier: Parser[String] =
-    """(([/\-!:,;'&_a-zA-Z01-9öäü\d\s])+)""".r
+    """(([/\-!:,;'&ß_a-zA-Z01-9öäü\d\s])+)""".r
 
   private def identifier: Parser[String] =
-    """(([/\-!.:,;'@ß&_a-zA-Z01-9öäü\d\s])+)""".r
+    """(([/\-!.:,;'@ß&_?a-zA-Z01-9öäü\d\s])+)""".r
 
   private def word: Parser[String] =
     """([_öäüßa-zA-Z01-9]+)""".r

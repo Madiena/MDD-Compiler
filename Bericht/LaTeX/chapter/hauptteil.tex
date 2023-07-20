@@ -1,5 +1,9 @@
 \thispagestyle{plain}
 \vspace*{2cm}
+\section{Einführung}
+Der vorliegende Bericht handelt von der Konzeption und Implementierung eines in der Programmiersprache Scala geschriebenen Generators zur automatischen Generierung von HTML Code. 
+
+
 \section{Textuelle Beschreibung}
 Der Generator, der im Rahmen dieses Projektes entwickelt wurde, ist in der Lage Websiten zu generieren, welche aus mindestens einer, andernfalls aber beliebig vielen Unterseiten besteht. 
 
@@ -27,3 +31,85 @@ Paragraphen verfügen über den Text, der als Inhalt dargestellt werden soll.
 Links bestehen aus einer Textangabe, die auf der Website zu lesen sein wird, sowie einer Zieladresse, wohin der Link führt.
 
 Tabellen setzen sich zusammen aus einem Tablehead und mehreren Tablerows. Der Tablehead besteht aus Tabellenspalten, welche die einzelnen Überschriften der Spalten darstellen sollen. Die übrigen Tablerows verfügen ebenfalls über Spalten, welche allerdings den Inhalt der Tabelle darstellen. Optisch unterscheiden sich die Spaltenelemente des Tableheads von den der Tablerows dadurch, dass die Spaltenelemente des Tableheads in einer Fettschrift dargestellt sind.
+
+\section{Unterstütze HTML Elemente}
+Die entwickelte Modellierungssprache ist in der Lage alle Elemente, welche in der textuellen Beschreibung genannt werden umzusetzen. In Abbildung \ref{ast} können alle Elemente und ihre Beziehung zueinander in Form eines Abstrakten Syntaxbaums betrachtet werden.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{img/Ast.png}
+	\caption[Abstrakter Syntaxbaum der Modellierungssprache]{Abstrakter Syntaxbaum der Modellierungssprache}
+	\label{ast}
+\end{figure}
+
+
+\section{Sprachspezifikation}
+Im diesem Abschnitt wird die Modellierungssprache in ihrer Syntax vorgestellt und erläutert. Das folgende Listing \ref{Language} dient als Beispiel für eine mögliche Website, welche mit der Modellierungssprache abgebildet wird.
+\begin{lstlisting}[label=Language,caption=Beispiel der Modellierungssprache]
+Website:
+	(Page: 
+		(Header: 
+			(Image:(misc/Logo_THM_MNI.png)), 
+			(Navbar: 
+				(Link: (Startseite), (index.html)), 
+				(Dropdown: (Veranstaltungen), 
+					(Link: (Algorithmen), (algorithmen.html)), 
+					(Link: (Betriebssysteme), (betriebssysteme.html)), 
+					(Link: (Computergrafik), (computergrafik.html)), 
+					(Link: (Archiv), (archiv.html))
+				), 
+				(Link: (Literaturempfehlungen), (literaturempfehlungen.html)), 
+				(Link: (Stundenplan), (stundenplan.html))
+			)
+		),
+		(Body:	
+			(Text: 
+				(Headline 1: (Betriebssysteme)), 
+				(Headline 4: (Kurzbeschreibung:)), 
+				(Paragraph: (In der Veranstaltung werden Grundlagen vertieft.)), 
+				(Headline 4: (Studiengang:)), 
+				(Paragraph: (Informatik B.Sc., Ingenieur-Informatik B.Sc.)), 
+				(Headline 4: (Nächste Veranstaltung:)), 
+				(Paragraph: (Montag, 24.04.2023: 08:00 Uhr - 09:30 Uhr))
+			)
+		),
+		(Footer: 
+			(Link: (Kontakt), (kontakt.html)), 
+			(Link: (Impressum), (impressum.html))
+		)
+	),
+	(Page: 
+		(Header: 
+			(Image:(misc/Logo_THM_MNI.png)), 
+			(Navbar: 
+				(Link: (Startseite), (index.html)), 
+				(Dropdown: (Veranstaltungen), 
+					(Link: (Algorithmen), (algorithmen.html)), 
+					(Link: (Betriebssysteme), (betriebssysteme.html)), 
+					(Link: (Computergrafik), (computergrafik.html)), 
+					(Link: (Archiv), (archiv.html))
+				), 
+				(Link: (Literaturempfehlungen), (literaturempfehlungen.html)), 
+				(Link: (Stundenplan), (stundenplan.html))
+			)
+		),
+		(Body: (List ordered: 
+			(Gogol-Döring, A.; Letschert, T.: Algorithmen für Dummies. Wiley.), (Cormen, T. H.; Leiserson, C. E.; Rivest, R.; Stein, C.; Molitor, P.: Algorithmen. Eine Einführung. De Gruyter.), 
+			(Skiena; S.: The Algorithm Design Manual. Springer.), 
+			(Robert, Y.; Benoit, A.; Vivien, F.: A Guide To Algorithm Design.)
+		)),
+		(Footer: 
+			(Link: (Kontakt), (kontakt.html)), 
+			(Link: (Impressum), (impressum.html))
+		)
+	)
+\end{lstlisting}
+
+Die Modellierungssprache besteht aus einigen Schlüsselwörtern, sowie semantisch sensitiven Zeichen. Alle in der Sprache definierten Schlüsselwörter bilden ihrerseits ein Element der Sprache ab. Die folgende Liste umfasst alle dieser Schlüsselwörter: 
+
+\{Website, Page, Header, Body, Footer, Navbar, Dropdown, Link,Text, Headline, Paragraph, List unordered, List ordered, Table, Tablerow, Form, Label, Input, Textarea, Placeholder, Id\}
+
+Jedem Schlüsselwort ist ein Doppelpunkt anzufügen. Sämtliche Elemente sind zudem mit runden Klammern umschlossen, um die Elemente syntaktisch voneinander zu trennen. Ausschließlich das Schlüsselwort Website wird als Startpunkt in den Code nicht in Klammern gepackt. Elemente welche in höherer Anzahl auftreten, sind Kommata getrennt.
+
+Aus Gründen des Umfangs kann in diesem Bericht nicht auf die genaue syntaktische Verwendung jedes einzelnen Elementes eingegangen werden. Bei Interesse kann die Grammatik der Modellierungssprache allerdings im Parser des Sprache nachgeschaut werden. Die entsprechende Klasse befindet sich in der Datei WebsiteParser.scala.
+\section{Testen der Modellierungssprache}

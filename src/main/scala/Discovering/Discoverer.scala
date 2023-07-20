@@ -816,8 +816,10 @@ class Discoverer() {
           link = link + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
-        link = link + sub.charAt(0)
-        sub = sub.replace(sub, sub.substring(1))
+        for (i <- 0 to 7) {
+          link = link + sub.charAt(0)
+          sub = sub.replace(sub, sub.substring(1))
+        }
         val l: Link = discoverLink(link)
         if (l != null) bodyElements = bodyElements ++ List(l)
       }
