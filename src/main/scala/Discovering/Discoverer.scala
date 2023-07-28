@@ -669,10 +669,12 @@ class Discoverer() {
       } else if (sub.charAt(1) == 'p') {
         paragraph = paragraph + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        while (sub.charAt(0) != '\n') {
+        while (!sub.startsWith(">\n")) {
           paragraph = paragraph + sub.charAt(0)
           sub = sub.replace(sub, sub.substring(1))
         }
+        paragraph = paragraph + sub.charAt(0)
+        sub = sub.replace(sub, sub.substring(1))
         paragraph = paragraph + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
         val pg: Paragraph = discoverParagraph(paragraph)
@@ -971,7 +973,7 @@ class Discoverer() {
         var textEl: String = ""
         textEl = textEl + sub.charAt(0)
         sub = sub.replace(sub, sub.substring(1))
-        while (!(sub.startsWith("<img") && sub.startsWith("<a href") ||
+        while (!(sub.startsWith("<img") || sub.startsWith("<a href") || sub.startsWith("<div><a href") ||
           sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ul>") ||
           sub.startsWith("<div class=\"col-sm-8 text-left bg-content\">\n<ol>") ||
           sub.startsWith("<div class=\"col-sm-10 text-center bg-content\">\n<table class=") ||

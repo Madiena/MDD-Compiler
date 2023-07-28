@@ -5,6 +5,9 @@ import scala.util.parsing.combinator._
 import scala.language.postfixOps
 import scala.util.matching.Regex
 
+/**
+ * Parser combinator class that defines the modeling language's grammar
+ */
 class WebsiteParser extends RegexParsers {
 
   import Absyn._

@@ -6,6 +6,10 @@ import scala.sys.exit
 
 class Reader {
 
+  /**
+   * Method that reads from file input.txt and returns its content. Used by Generator.
+   * @return The content of file input.txt.
+   */
   def readInput(): String = {
     var file: BufferedSource = null
     var input: String = ""
@@ -27,6 +31,11 @@ class Reader {
       input
     }
   }
+
+  /**
+   * Method that reads all generated html files that are found and returns their content. Used by Discoverer.
+   * @return The content of all existing generated html files concatenated together.
+   */
   def readFile(): String = {
     var file: BufferedSource = null
     var num = 1
