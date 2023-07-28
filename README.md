@@ -16,4 +16,5 @@ To run test files choose file TestWebsiteParser.scala (for testing Parser and Ge
 (for testing Discoverer) in your run configurations without any arguments. If using a Jetbrains IDE one may also simply
 use the run buttons that are located right at the definition of the main methods in each file.
 
+----------------------------------------------------------------------------------------------------------
 If any further help or information is required, don't hesitate to send me a mail. 
