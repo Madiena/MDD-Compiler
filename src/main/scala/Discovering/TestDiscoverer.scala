@@ -1,9 +1,10 @@
 package Discovering
 
 import Generation.TestWebsiteParser
-import Generation.TestWebsiteParser.website
-import com.sun.net.httpserver.Authenticator.Success
 
+/**
+ * Object that defines unit tests for the Discoverer class.
+ */
 object TestDiscoverer extends Discoverer {
   def main(args: Array[String]): Unit = {
     var s: String = ""

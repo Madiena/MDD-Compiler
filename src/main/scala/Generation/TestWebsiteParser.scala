@@ -5,6 +5,9 @@ import Utils.Reader
 import java.io.File
 import scala.sys.exit
 
+/**
+ * Object that defines unit tests for the classes WebsiteParser and Generator.
+ */
 object TestWebsiteParser extends WebsiteParser {
   def main(args: Array[String]): Unit = {
 

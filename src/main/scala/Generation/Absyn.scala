@@ -4,6 +4,9 @@ import Utils.Writer
 
 import scala.sys.exit
 
+/**
+ * Object that defines the abstract syntax tree and its elements.
+ */
 object Absyn {
 
   case class Image(identifier: String) extends BodyElement {
@@ -13,6 +16,13 @@ object Absyn {
   }
 
   case class Website(pages: List[Page]) {
+
+    /**
+     * Helper method to handle semantic errors.
+     * @param error Error message that has to be printed.
+     * @param test Boolean that defines whether method is used within a test or not
+     * @return Error message.
+     */
     private def failure(error: String, test: Boolean): String = {
       val failure: String = error
       if (!test) {
@@ -23,6 +33,12 @@ object Absyn {
       }
     }
 
+    /**
+     * Method to analyze a models for restrictions and handle errors caused by violating model restrictions.
+     *
+     * @param test  Boolean that defines whether method is used within a test or not
+     * @return Error message.
+     */
     def analyzeSemantics(test: Boolean): Any = {
       if (pages.isEmpty) {
         return failure("Error: At least one page must be provided!\n", test)
@@ -91,6 +107,9 @@ object Absyn {
       }
     }
 
+    /**
+     * Method to build website.
+     */
     def buildWebsite(): Unit = {
       val writer: Writer = new Writer()
       var nr = 1

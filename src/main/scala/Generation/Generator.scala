@@ -8,6 +8,9 @@ import scala.sys.exit
 class Generator extends WebsiteParser {
     val reader = new Reader
 
+  /**
+   * Method that reads input file input.txt and generates a website from that input.
+   */
   def generateWebsite():Unit = {
       parseAll(website, reader.readInput()) match {
       case Success(matched, _) =>

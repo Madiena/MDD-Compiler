@@ -6,11 +6,14 @@ import Utils.{Reader, Writer}
 import scala.sys.exit
 
 
-//noinspection ScalaUnusedSymbol,DuplicatedCode
 class Discoverer() {
   var input: String = ""
   var failure: String = ""
 
+  /**
+   * Method to discover a whole website as it reads all files that have been generated and discovers it.
+   * @return The discovered website.
+   */
   def discoverWebsite(): Website = {
     val writer: Writer = new Writer()
     val reader: Reader = new Reader()
@@ -38,6 +41,13 @@ class Discoverer() {
     website
   }
 
+
+  /**
+   * Method to determine which element has to be discovered if a given html code doesn't represent a whole modell but
+   * only a partial one.
+   *
+   * @return The discovered element.
+   */
   def discover(input: String): Object = {
     val writer: Writer = new Writer
     var o: Object = new Object
@@ -167,6 +177,13 @@ class Discoverer() {
     }
   }
 
+
+  /**
+   * Method to discover a form as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered form.
+   */
   private def discoverForm(input: String): Form = {
     if (input.substring(0, 156) != "<div class=\"col-sm-8 text-left bg-content container\">\n<form action=\"action_page.php\" style=\"width:600px\">\n<div class=\"form-group\" style=\"margin-top: 50px\">\n") {
       failure = failure + input + "\n"
@@ -220,6 +237,12 @@ class Discoverer() {
     form
   }
 
+  /**
+   * Method to discover an input field as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered input field.
+   */
   private def discoverInput(input: String): InputEl = {
     if (input.substring(0, 72) != "<input style=\"margin-bottom: 25px\" type=\"text\" class=\"form-control\" id=\"") {
       failure = failure + input + "\n"
@@ -247,6 +270,12 @@ class Discoverer() {
     inputEl
   }
 
+  /**
+   * Method to discover a textarea as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered teaxtarea.
+   */
   private def discoverTextarea(input: String): TextArea = {
     if (input.substring(0, 42) != "<textarea style=\"margin-bottom: 50px\" id=\"") {
       failure = failure + input + "\n"
@@ -274,6 +303,12 @@ class Discoverer() {
     textArea
   }
 
+  /**
+   * Method to discover a label as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered label.
+   */
   private def discoverLabel(input: String): Label = {
     if (input.substring(0, 12) != "<label for=\"") {
       failure = failure + input + "\n"
@@ -300,6 +335,12 @@ class Discoverer() {
     label
   }
 
+  /**
+   * Method to discover a tablehead as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered tablehead.
+   */
   private def discoverTablehead(input: String): Tablehead = {
     if (input.substring(0, 24) != "<th class=\"text-center\">") {
       failure = failure + input + "\n"
@@ -315,6 +356,12 @@ class Discoverer() {
     tablehead
   }
 
+  /**
+   * Method to discover the data of a tablerow as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered data of a tablerow.
+   */
   private def discoverTableRowData(input: String): Tablerowdata = {
     if (input.substring(0, 5) != "<tr>\n") {
       failure = failure + input + "\n"
@@ -344,6 +391,12 @@ class Discoverer() {
     tablerowdata
   }
 
+  /**
+   * Method to discover a tabledata as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered tabledata.
+   */
   private def discoverTabledata(input: String): Tabledata = {
     if (input.substring(0, 4) != "<td>") {
       failure = failure + input + "\n"
@@ -359,6 +412,12 @@ class Discoverer() {
     tabledata
   }
 
+  /**
+   * Method to discover the head of a tablerow as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered head of a tablerow.
+   */
   private def discoverTableRowHead(input: String): Tablerowhead = {
     if (input.substring(0, 13) != "<thead>\n<tr>\n") {
       failure = failure + input + "\n"
@@ -388,6 +447,12 @@ class Discoverer() {
     tablerowhead
   }
 
+  /**
+   * Method to discover a table as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered table.
+   */
   private def discoverTable(input: String): Table = {
     if (input.substring(0, 69) != "<div class=\"col-sm-10 text-center bg-content\">\n<table class=\"table\">\n") {
       failure = failure + input + "\n"
@@ -436,6 +501,12 @@ class Discoverer() {
     }
   }
 
+  /**
+   * Method to discover a list element as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered list element.
+   */
   private def discoverListElement(input: String): ListElement = {
     if (input.substring(0, 4) != "<li>") {
       failure = failure + input + "\n"
@@ -451,6 +522,12 @@ class Discoverer() {
     listElement
   }
 
+  /**
+   * Method to discover an ordered list as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered ordered list.
+   */
   private def discoverOrderedList(input: String): OrderedList = {
     if (input.substring(0, 48) != "<div class=\"col-sm-8 text-left bg-content\">\n<ol>") {
       failure = failure + input + "\n"
@@ -480,6 +557,12 @@ class Discoverer() {
     oList
   }
 
+  /**
+   * Method to discover an unordered list as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered unordered list.
+   */
   private def discoverUnorderedList(input: String): UnorderedList = {
     if (input.substring(0, 48) != "<div class=\"col-sm-8 text-left bg-content\">\n<ul>") {
       failure = failure + input + "\n"
@@ -509,6 +592,12 @@ class Discoverer() {
     uList
   }
 
+  /**
+   * Method to discover a paragraph as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered paragraph.
+   */
   private def discoverParagraph(input: String): Paragraph = {
     if (input.substring(0, 31) != "<p style=\"margin-bottom: 25px\">") {
       failure = failure + input + "\n"
@@ -524,6 +613,12 @@ class Discoverer() {
     paragraph
   }
 
+  /**
+   * Method to discover a headline as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered headline.
+   */
   private def discoverHeadline(input: String): Headline = {
     if (input.substring(0, 2) != "<h") {
       failure = failure + input + "\n"
@@ -545,6 +640,12 @@ class Discoverer() {
     headline
   }
 
+  /**
+   * Method to discover a text as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered text.
+   */
   private def discoverText(input: String): Text = {
     var sub = input
     var headline: String = ""
@@ -584,6 +685,12 @@ class Discoverer() {
     text
   }
 
+  /**
+   * Method to discover a link as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered link.
+   */
   private def discoverLink(input: String): Link = {
     if (input.substring(0, 14) != "<div><a href=\"") {
       failure = failure + input + "\n"
@@ -611,6 +718,12 @@ class Discoverer() {
     link
   }
 
+  /**
+   * Method to discover a link within a navbar as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered navbar link.
+   */
   private def discoverNavlink(input: String): NavLink = {
     if (input.substring(0, 13) != "<li><a href=\"") {
       failure = failure + input + "\n"
@@ -638,6 +751,12 @@ class Discoverer() {
     link
   }
 
+  /**
+   * Method to discover a navbar list as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered navbar list.
+   */
   private def discoverNavbarlist(input: String): NavbarList = {
     if (input.substring(0, 72) != "<li class=\"dropdown\">\n<a class=\"dropdown-toggle\" data-toggle=\"dropdown\">") {
       failure = failure + input + "\n"
@@ -679,6 +798,12 @@ class Discoverer() {
     navbarList
   }
 
+  /**
+   * Method to discover a navbar as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered navbar.
+   */
   private def discoverNavbar(input: String): Navbar = {
     if (input.substring(0, 126) != "<nav class=\"navbar\">\n<div class=\"container\">\n<div class=\"collapse navbar-collapse\" id=\"myNavbar\">\n<ul class=\"nav navbar-nav\">\n") {
       failure = failure + input + "\n"
@@ -741,6 +866,12 @@ class Discoverer() {
     navbar
   }
 
+  /**
+   * Method to discover an image as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered image.
+   */
   private def discoverImage(input: String): Image = {
     if (input.substring(0, 10) != "<img src=\"") {
       failure = failure + input + "\n"
@@ -756,6 +887,12 @@ class Discoverer() {
     image
   }
 
+  /**
+   * Method to discover a footer as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered footer.
+   */
   private def discoverFooter(input: String): Footer = {
     if (input.substring(0, 55) != "<footer class=\"container-fluid text-center\">\n<ul>\n<li>\n") {
       failure = failure + input + "\n"
@@ -783,6 +920,12 @@ class Discoverer() {
     footer
   }
 
+  /**
+   * Method to discover a body as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered body.
+   */
   private def discoverBody(input: String): Body = {
     if (input.substring(0, 169) != "<body>\n<div class=\"container-fluid text-center\">\n<div class=\"row content\">\n\n<div class=\"col-sm-2 sidenav\">\n\n</div>\n\n<div class=\"col-sm-8 text-left bg-content container\">") {
       failure = failure + input + "\n"
@@ -903,6 +1046,12 @@ class Discoverer() {
     body
   }
 
+  /**
+   * Method to discover a header as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered header.
+   */
   private def discoverHeader(input: String): Header = {
     if (input.substring(0, 67) != "<header>\n<div class=\"jumbotron\">\n<div class=\"container text-left\">\n") {
       failure = failure + input + "\n"
@@ -937,6 +1086,12 @@ class Discoverer() {
     }
   }
 
+  /**
+   * Method to discover a page as it locates all variable parts of the given html input string and creates an instance
+   * out of the discoverd information.
+   *
+   * @return The discovered page.
+   */
   private def discoverPage(input: String): Page = {
     if (input.substring(0, 313) != "<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"misc/bootstrap.css\">\n<link rel=\"stylesheet\" href=\"misc/my.css\">\n<script src=\"misc/jquery.js\"></script>\n<script src=\"misc/bootstrap.js\"></script>\n</head>\n") {
       failure = failure + input + "\n"
